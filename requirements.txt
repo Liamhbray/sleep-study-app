@@ -1,0 +1,20 @@
+# Flask Web Framework
+Flask==3.0.0
+
+# Supabase Python client
+supabase==2.3.0
+
+# Environment variables
+python-dotenv==1.0.0
+
+# HTTP requests (for testing)
+requests==2.31.0
+
+# Date/time utilities (built-in, but specifying for clarity)
+# datetime - built-in
+# uuid - built-in
+# os - built-in
+
+# Development dependencies (optional)
+# pytest==8.0.0  # For unit testing
+# flake8==7.0.0   # For linting 
