@@ -9,6 +9,7 @@
 - [Database Schema Compliance](#database-schema-compliance)
 - [Flask Application Structure](#flask-application-structure)
 - [Booking Flow Documentation](#booking-flow-documentation)
+- [System Workflows & User Journeys](#system-workflows--user-journeys)
 - [Template System](#template-system)
 - [HTMX Integration Patterns](#htmx-integration-patterns)
 - [API Endpoints Documentation](#api-endpoints-documentation)
@@ -179,6 +180,140 @@ A modular Flask application with:
 ---
 
 ## Database Schema Compliance
+
+### Database Entity Relationship Diagram
+
+The following ERD provides a comprehensive view of the database schema with organizational constraints and multi-tenant security:
+
+erDiagram
+    auth_users {
+        uuid id PK
+        string email
+        string encrypted_password
+        timestamptz email_confirmed_at
+        timestamptz created_at 
+    }
+    organizations {
+        uuid id PK
+        string name
+        jsonb organization_details
+        jsonb opening_hours
+        int max_concurrent_studies
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    app_users {
+        uuid id PK "FK to auth_users"
+        string role "patient|staff|doctor|admin"
+        timestamptz created_at
+    }
+    organization_memberships {
+        uuid id PK
+        uuid user_id FK
+        uuid organization_id FK
+        jsonb role_details "title, department, permissions, etc"
+        timestamptz created_at
+    }
+    patient_profiles {
+        uuid user_id PK "FK to app_users"
+        jsonb patient_details
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    devices {
+        uuid id PK
+        uuid organization_id FK
+        jsonb device_details
+        device_status status
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    sleep_studies {
+        uuid id PK
+        uuid organization_id FK "NEW: organizational context"
+        uuid patient_id FK
+        uuid manager_id FK "staff from same org"
+        uuid doctor_id FK "doctor from same org"
+        uuid device_id FK "device from same org"
+        study_state current_state
+        date start_date
+        date end_date
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    referrals {
+        uuid id PK
+        uuid sleep_study_id FK
+        string file_url
+        timestamptz created_at
+    }
+    survey_responses {
+        uuid id PK
+        uuid sleep_study_id FK
+        string type
+        jsonb answers
+        int score
+        timestamptz created_at
+    }
+    sleep_data_files {
+        uuid id PK
+        uuid sleep_study_id FK
+        string file_url
+        timestamptz created_at
+    }
+    doctor_reports {
+        uuid id PK
+        uuid sleep_study_id FK
+        string file_url
+        timestamptz created_at
+    }
+    device_status {
+        string available
+        string assigned
+    }
+    study_state {
+        string booked
+        string active
+        string review
+        string completed
+        string cancelled
+    }
+    storage_buckets {
+        string referrals_bucket
+        string sleep_data_bucket
+        string reports_bucket
+    }
+
+    %% Core Identity & Auth
+    auth_users ||--|| app_users : "extends"
+    
+    %% Organization Structure
+    organizations ||--o{ organization_memberships : "has_members"
+    app_users ||--o{ organization_memberships : "member_of"
+    
+    %% Organization Ownership
+    organizations ||--o{ devices : "owns"
+    organizations ||--o{ sleep_studies : "manages"
+    
+    %% User Profiles
+    app_users ||--o| patient_profiles : "patient_details"
+    
+    %% Sleep Studies with Organizational Constraints
+    app_users ||--o{ sleep_studies : "patient"
+    app_users ||--o{ sleep_studies : "manager_same_org"
+    app_users ||--o{ sleep_studies : "doctor_same_org"
+    devices ||--o{ sleep_studies : "assigned_same_org"
+    
+    %% Study Documents & Data
+    sleep_studies ||--o{ referrals : "has"
+    sleep_studies ||--o{ survey_responses : "has"
+    sleep_studies ||--o{ sleep_data_files : "produces"
+    sleep_studies ||--o{ doctor_reports : "results_in"
+    
+    %% File Storage
+    referrals }o--|| storage_buckets : "stored_in"
+    sleep_data_files }o--|| storage_buckets : "stored_in"
+    doctor_reports }o--|| storage_buckets : "stored_in"
 
 ### Core Tables Overview
 
@@ -594,6 +729,210 @@ def booking_confirmation():
     - Fallback options for partial data recovery
     """
 ```
+
+---
+
+## System Workflows & User Journeys
+
+### Patient Workflow
+
+The patient journey encompasses the complete lifecycle from initial onboarding through study completion and results access:
+
+```python
+def patient_journey_overview():
+    """
+    Complete patient workflow from registration to results.
+    
+    Key Phases:
+    1. Initial Onboarding: Account creation and profile setup
+    2. Sleep Study Booking: Multi-step booking process with assessments
+    3. Active Study Period: Home-based sleep monitoring
+    4. Results & Follow-up: Report access and care coordination
+    
+    Database Interactions:
+    - auth_users: Supabase authentication 
+    - app_users: Role assignment and permissions
+    - patient_profiles: Extended medical information
+    - sleep_studies: Study records with organizational context
+    - referrals: Medical referral document management
+    - survey_responses: Assessment questionnaire data
+    - doctor_reports: Final clinical reports
+    """
+```
+
+sequenceDiagram
+    participant P as Patient
+    participant System as Sleep Study System
+    participant Staff as Staff Member
+    participant Doctor as Doctor
+
+    Note over P: INITIAL ONBOARDING
+    P->>System: Visit Website/App
+    P->>System: Sign Up "auth.users"
+    P->>System: Create App User Record "app_users"
+    P->>System: Complete Patient Profile "patient_profiles"
+    
+    Note over P: SLEEP STUDY BOOKING
+    P->>System: Access Dashboard
+    alt No Active Study
+        P->>System: Browse Available Services
+        P->>System: Select Sleep Study Type
+        P->>System: Choose Preferred Dates
+        P->>System: Upload Medical Referral "referrals"
+        P->>System: Complete Pre-Study Surveys "survey_responses"
+        P->>System: Submit Booking Request
+    else Has Active Study
+        P->>System: Check Study Status
+        P->>System: View Study Timeline
+    end
+    
+    Note over P: ACTIVE STUDY PERIOD
+    P->>P: Conduct Sleep Study at Home
+    
+    Note over P: RESULTS
+    System->>P: Notify Results Available
+    P->>System: Access Dashboard
+    P->>System: Download Medical Report
+    P->>System: View Study Summary
+
+### Staff Workflow
+
+Staff members serve as healthcare coordinators, managing the administrative and operational aspects of sleep studies with enhanced patient assistance capabilities:
+
+```python
+def staff_administrative_workflow():
+    """
+    Enhanced staff workflow with patient assistance capabilities.
+    
+    Core Responsibilities:
+    1. Daily Operations: Dashboard monitoring and queue management
+    2. Patient Assistance: Help with bookings and form completion
+    3. Study Management: Device assignment and state transitions
+    4. Device Lifecycle: Equipment tracking and data collection
+    
+    Enhanced RLS Capabilities (January 2025):
+    - Staff can create patient accounts (phone/in-person support)
+    - Complete forms on behalf of patients (family assistance)
+    - Manage all studies within their organization
+    - Handle complex multi-step processes for patients needing help
+    
+    Database Operations:
+    - organization_memberships: Staff role and permissions
+    - devices: Equipment assignment and status tracking
+    - sleep_studies: Study creation and state management
+    - sleep_data_files: Upload of monitoring results
+    """
+```
+
+sequenceDiagram
+    participant Staff as Staff Member
+    participant System as Sleep Study System
+    participant P as Patient
+
+    Note over Staff: DAILY OPERATIONS
+    Staff->>System: Login to Dashboard
+    Staff->>System: View Organization Overview
+    Staff->>System: Check Pending Bookings
+    Staff->>System: Review Device Availability
+    
+    Note over Staff: PATIENT ASSISTANCE     
+    Staff->>System: Access Patient Profile "patient_profiles"
+    alt New Patient
+        Staff->>System: Create Patient Account "app_users"
+        Staff->>System: Complete Profile on Behalf "patient_profiles"
+    end
+    alt New Sleep Study
+        Staff->>System: Create Sleep Study "sleep_studies"
+        Staff->>System: Complete Surveys with Patient "survey_responses"
+        Staff->>System: Upload Referral Documents "referrals"
+    end
+
+    Note over Staff: STUDY MANAGEMENT
+    Staff->>System: Review Booking Queue
+    Staff->>System: Check Available Devices "devices status: available"
+    Staff->>System: Assign Device to Study "devices: status=assigned"
+    Staff->>System: Update Study State "booked → active"
+    
+    Note over Staff: DEVICE LIFECYCLE
+    Staff->>System: Mark Device Available "devices: status=available"
+    Staff->>System: Upload Sleep Data Files "sleep_data_files"
+    Staff->>System: Update Study State "active → review"
+    Staff->>System: Assign Study for Review "sleep_study: doctor_id"
+
+### Doctor Workflow
+
+Doctors provide clinical oversight and medical interpretation of sleep study results within their assigned organizational context:
+
+```python
+def doctor_clinical_workflow():
+    """
+    Clinical workflow for sleep study review and reporting.
+    
+    Clinical Responsibilities:
+    1. Study Review: Comprehensive analysis of sleep data
+    2. Medical Assessment: Integration with patient history
+    3. Report Generation: Clinical findings and recommendations
+    4. Care Coordination: Follow-up planning and referrals
+    
+    Organizational Context:
+    - Doctors only see studies from their assigned organizations
+    - RLS policies enforce strict organizational boundaries
+    - Multi-organization doctors have appropriate access scope
+    
+    Database Operations:
+    - sleep_studies: Studies assigned for clinical review
+    - patient_profiles: Medical history and clinical context
+    - referrals: Original medical referral documents
+    - survey_responses: Pre-study assessment data
+    - sleep_data_files: Raw monitoring data analysis
+    - doctor_reports: Final clinical report generation
+    """
+```
+
+sequenceDiagram
+    participant Doctor as Doctor
+    participant System as Sleep Study System
+    participant P as Patient
+
+    Note over Doctor: DOCTOR WORKFLOW
+    Doctor->>System: Login to Clinical Portal
+    Doctor->>System: View Assigned Studies Dashboard
+    Doctor->>System: Check Studies in "review" State
+    
+    Note over Doctor: STUDY REVIEW
+    loop For Each Study
+        Doctor->>System: Open Study Details "sleep_studies"
+        Doctor->>System: Review Patient Profile "patient_profiles"
+        Doctor->>System: Download Medical Referral "referrals"
+        Doctor->>System: Review Pre-Study Surveys "survey_responses"
+        
+        Note over Doctor: DATA ANALYSIS
+        Doctor->>System: Download Sleep Data Files "sleep_data_files"
+        Doctor->>System: Upload Final Report "doctor_reports"
+        Doctor->>System: Update Study State "review → completed"
+    end
+
+### Workflow Integration Benefits
+
+The integrated workflow system provides several key advantages:
+
+#### **Healthcare Support Scenarios**
+- 🔸 **Phone Support**: Staff can walk elderly patients through the complete booking process
+- 🔸 **In-Person Assistance**: Complete forms together during office visits
+- 🔸 **Family Help**: Assist family members managing patient care
+- 🔸 **Complex Cases**: Handle multi-step processes for patients with special needs
+
+#### **Organizational Efficiency**
+- ⚡ **Streamlined Handoffs**: Clear state transitions between roles
+- 📊 **Real-time Visibility**: Dashboard updates across all user types
+- 🔄 **Device Optimization**: Efficient equipment utilization tracking
+- 📋 **Queue Management**: Systematic study progression monitoring
+
+#### **Clinical Quality**
+- 🏥 **Comprehensive Data**: Complete patient context for clinical decisions
+- 📝 **Standardized Assessments**: Consistent pre-study evaluations
+- 🔍 **Detailed Analysis**: Multi-source data integration for diagnosis
+- 📊 **Audit Trail**: Complete workflow history for compliance
 
 ---
 
