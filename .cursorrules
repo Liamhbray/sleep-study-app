@@ -1,0 +1,37 @@
+# AI Agent Context Rules for Sleep Study Management System
+
+## Project Context
+This is a healthcare Flask + HTMX application for sleep study management.
+Single developer with AI assistance. Documentation optimized for AI understanding.
+
+## Architecture Principles  
+- Python/Flask backend (no JavaScript frameworks)
+- HTMX for frontend interactivity (strongly preferred over JS)
+- Supabase for database and auth (remote only, no local)
+- MCP tools for Supabase operations when available
+
+## Key Files for AI Context
+- README.md: Complete system documentation (monolithic, authoritative)
+- app.py: Main Flask application with comprehensive docstrings
+- seed_database.py: Test data generation with user creation
+- SEEDING_GUIDE.md: Database seeding instructions
+
+## Code Patterns
+- Comprehensive docstrings explaining business logic and clinical context
+- HTMX endpoints return HTML fragments, not JSON
+- Session-based authentication with role-based access control
+- DDL-compliant database operations with proper foreign keys
+- Healthcare compliance considerations (HIPAA-ready patterns)
+
+## When Suggesting Changes
+- Prefer Python solutions over JavaScript
+- Maintain comprehensive documentation for AI context
+- Follow existing docstring patterns for consistency
+- Consider healthcare compliance and clinical workflows
+- Use MCP tools when equivalent CLI functionality exists
+
+## Development Workflow
+- Database seeding provides immediate test environment
+- All users pre-confirmed (no email verification in dev)
+- Multiple organizations and realistic test data
+- Flask CLI commands for common operations 

@@ -1,0 +1,153 @@
+<!-- Progress Bar -->
+<div hx-swap-oob="innerHTML:#progress-container">
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+        <div class="bg-patient-600 h-2 rounded-full" style="width: 71%"></div>
+    </div>
+    <div class="flex justify-between text-xs text-gray-500">
+        <span>Start</span>
+        <span>Time</span>
+        <span>Details</span>
+        <span>Referral</span>
+        <span class="font-medium text-patient-600">Epworth</span>
+        <span>OSA-50</span>
+        <span>Confirm</span>
+    </div>
+</div>
+
+<!-- Step Content -->
+<div class="bg-white shadow-sm rounded-lg p-8">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            Epworth Sleepiness Scale
+        </h2>
+        <p class="text-gray-600 mb-4">
+            This questionnaire measures your general level of daytime sleepiness. 
+            For each situation, choose how likely you are to doze off or fall asleep.
+        </p>
+        
+        <!-- Scoring Guide -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 class="text-sm font-medium text-blue-900 mb-2">Rating Scale:</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <div class="flex items-center">
+                    <span class="w-6 h-6 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-xs font-medium mr-2">0</span>
+                    <span class="text-blue-700">Never doze</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-6 h-6 bg-blue-200 text-blue-800 rounded-full flex items-center justify-center text-xs font-medium mr-2">1</span>
+                    <span class="text-blue-700">Slight chance</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-6 h-6 bg-blue-300 text-blue-800 rounded-full flex items-center justify-center text-xs font-medium mr-2">2</span>
+                    <span class="text-blue-700">Moderate chance</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-6 h-6 bg-blue-400 text-blue-800 rounded-full flex items-center justify-center text-xs font-medium mr-2">3</span>
+                    <span class="text-blue-700">High chance</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <form hx-post="/htmx/booking/save-step" 
+          hx-target="#booking-content"
+          hx-swap="innerHTML"
+          hx-indicator="#step-loading"
+          class="space-y-6">
+        
+        <!-- Epworth Questions -->
+        <div class="space-y-6">
+            {% for question in epworth_questions %}
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    {{ loop.index }}. How likely are you to doze off or fall asleep in the following situation?
+                </h3>
+                <p class="text-gray-700 mb-4 font-medium">{{ question.text }}</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:bg-gray-50 transition-colors has-[:checked]:ring-2 has-[:checked]:ring-patient-500 has-[:checked]:border-patient-500">
+                        <input type="radio" 
+                               name="{{ question.id }}" 
+                               value="0"
+                               class="sr-only peer"
+                               required>
+                        <span class="flex flex-1 items-center">
+                            <span class="flex flex-col text-center">
+                                <span class="block text-2xl font-bold text-gray-900 mb-1">0</span>
+                                <span class="block text-sm font-medium text-gray-700">Never doze</span>
+                            </span>
+                        </span>
+                        <i data-lucide="check-circle" class="h-5 w-5 text-patient-600 hidden peer-checked:block"></i>
+                    </label>
+                    
+                    <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:bg-gray-50 transition-colors has-[:checked]:ring-2 has-[:checked]:ring-patient-500 has-[:checked]:border-patient-500">
+                        <input type="radio" 
+                               name="{{ question.id }}" 
+                               value="1"
+                               class="sr-only peer"
+                               required>
+                        <span class="flex flex-1 items-center">
+                            <span class="flex flex-col text-center">
+                                <span class="block text-2xl font-bold text-gray-900 mb-1">1</span>
+                                <span class="block text-sm font-medium text-gray-700">Slight chance</span>
+                            </span>
+                        </span>
+                        <i data-lucide="check-circle" class="h-5 w-5 text-patient-600 hidden peer-checked:block"></i>
+                    </label>
+                    
+                    <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:bg-gray-50 transition-colors has-[:checked]:ring-2 has-[:checked]:ring-patient-500 has-[:checked]:border-patient-500">
+                        <input type="radio" 
+                               name="{{ question.id }}" 
+                               value="2"
+                               class="sr-only peer"
+                               required>
+                        <span class="flex flex-1 items-center">
+                            <span class="flex flex-col text-center">
+                                <span class="block text-2xl font-bold text-gray-900 mb-1">2</span>
+                                <span class="block text-sm font-medium text-gray-700">Moderate chance</span>
+                            </span>
+                        </span>
+                        <i data-lucide="check-circle" class="h-5 w-5 text-patient-600 hidden peer-checked:block"></i>
+                    </label>
+                    
+                    <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:bg-gray-50 transition-colors has-[:checked]:ring-2 has-[:checked]:ring-patient-500 has-[:checked]:border-patient-500">
+                        <input type="radio" 
+                               name="{{ question.id }}" 
+                               value="3"
+                               class="sr-only peer"
+                               required>
+                        <span class="flex flex-1 items-center">
+                            <span class="flex flex-col text-center">
+                                <span class="block text-2xl font-bold text-gray-900 mb-1">3</span>
+                                <span class="block text-sm font-medium text-gray-700">High chance</span>
+                            </span>
+                        </span>
+                        <i data-lucide="check-circle" class="h-5 w-5 text-patient-600 hidden peer-checked:block"></i>
+                    </label>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="flex justify-between">
+            <button type="button"
+                    hx-get="/htmx/booking/step/4" 
+                    hx-target="#booking-content"
+                    hx-swap="innerHTML"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i>
+                Back
+            </button>
+            
+            <button type="submit"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-patient-600 hover:bg-patient-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                Continue
+                <i data-lucide="arrow-right" class="h-4 w-4 ml-2"></i>
+            </button>
+        </div>
+        
+        <div id="step-loading" class="htmx-indicator flex justify-center">
+            <div class="spinner"></div>
+        </div>
+    </form>
+</div> 

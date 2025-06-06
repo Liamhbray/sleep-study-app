@@ -1,0 +1,77 @@
+<!-- Progress Bar -->
+<div hx-swap-oob="innerHTML:#progress-container">
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+        <div class="bg-patient-600 h-2 rounded-full" style="width: 14%"></div>
+    </div>
+    <div class="flex justify-between text-xs text-gray-500">
+        <span class="font-medium text-patient-600">Start</span>
+        <span>Time</span>
+        <span>Details</span>
+        <span>Referral</span>
+        <span>Epworth</span>
+        <span>OSA-50</span>
+        <span>Confirm</span>
+    </div>
+</div>
+
+<!-- Step Content -->
+<div class="bg-white shadow-sm rounded-lg p-8">
+    <div class="text-center">
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-patient-100 mb-6">
+            <i data-lucide="moon" class="h-8 w-8 text-patient-600"></i>
+        </div>
+        
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">
+            Book Your Sleep Study
+        </h2>
+        
+        <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            We'll guide you through a simple 7-step process to book your sleep study appointment. 
+            This will take about 5-10 minutes to complete.
+        </p>
+        
+        <!-- Feature Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 text-left">
+            <div class="flex items-start space-x-3">
+                <i data-lucide="clock" class="h-5 w-5 text-patient-600 mt-1"></i>
+                <div>
+                    <h3 class="font-medium text-gray-900">Quick & Easy</h3>
+                    <p class="text-sm text-gray-600">Complete the booking in under 10 minutes</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start space-x-3">
+                <i data-lucide="calendar" class="h-5 w-5 text-patient-600 mt-1"></i>
+                <div>
+                    <h3 class="font-medium text-gray-900">Flexible Scheduling</h3>
+                    <p class="text-sm text-gray-600">Choose from available appointment times</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start space-x-3">
+                <i data-lucide="file-text" class="h-5 w-5 text-patient-600 mt-1"></i>
+                <div>
+                    <h3 class="font-medium text-gray-900">Upload Referral</h3>
+                    <p class="text-sm text-gray-600">Securely upload your doctor's referral</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start space-x-3">
+                <i data-lucide="clipboard-list" class="h-5 w-5 text-patient-600 mt-1"></i>
+                <div>
+                    <h3 class="font-medium text-gray-900">Health Questionnaires</h3>
+                    <p class="text-sm text-gray-600">Complete brief sleep assessment forms</p>
+                </div>
+            </div>
+        </div>
+        
+        <button 
+            hx-get="/htmx/booking/step/2" 
+            hx-target="#booking-content"
+            hx-swap="innerHTML"
+            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-patient-600 hover:bg-patient-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500 transition-colors">
+            Start Booking Process
+            <i data-lucide="arrow-right" class="h-5 w-5 ml-2"></i>
+        </button>
+    </div>
+</div> 

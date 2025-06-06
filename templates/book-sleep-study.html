@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Book Sleep Study - Sleep Study Manager{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Progress Header -->
+    <div class="bg-white shadow-sm rounded-lg p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="text-2xl font-bold text-gray-900">Book Sleep Study</h1>
+            <a href="/dashboard" class="text-patient-600 hover:text-patient-800 text-sm font-medium">
+                <i data-lucide="arrow-left" class="h-4 w-4 inline mr-1"></i>
+                Back to Dashboard
+            </a>
+        </div>
+        
+        <!-- Progress Bar Container -->
+        <div id="progress-container">
+            <!-- Will be populated by HTMX -->
+        </div>
+    </div>
+
+    <!-- Loading Indicator (outside content area) -->
+    <div id="booking-loading" class="htmx-indicator flex justify-center py-12">
+        <div class="spinner"></div>
+        <span class="ml-2 text-gray-600">Loading...</span>
+    </div>
+
+    <!-- Step Content Container -->
+    <div id="booking-content" 
+         hx-get="/htmx/booking/step/1" 
+         hx-trigger="load"
+         hx-indicator="#booking-loading">
+        <!-- Content will be loaded here -->
+    </div>
+</div>
+{% endblock %} 

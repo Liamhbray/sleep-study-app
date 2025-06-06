@@ -1,0 +1,93 @@
+<div class="bg-white shadow-sm rounded-lg p-8">
+    <div class="text-center">
+        <!-- Error Icon -->
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+            <i data-lucide="alert-circle" class="h-10 w-10 text-red-600"></i>
+        </div>
+        
+        <!-- Error Message -->
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">
+            Booking Failed
+        </h2>
+        
+        <p class="text-lg text-gray-600 mb-6">
+            We encountered an issue while processing your sleep study booking. Please try again.
+        </p>
+        
+        <!-- Error Details -->
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6 text-left max-w-md mx-auto">
+            <h3 class="text-lg font-medium text-red-900 mb-3 flex items-center">
+                <i data-lucide="alert-triangle" class="h-5 w-5 mr-2"></i>
+                Error Details
+            </h3>
+            
+            <p class="text-sm text-red-800">
+                {{ error }}
+            </p>
+        </div>
+        
+        <!-- Troubleshooting Steps -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6 text-left">
+            <h3 class="text-lg font-medium text-yellow-900 mb-3 flex items-center">
+                <i data-lucide="help-circle" class="h-5 w-5 mr-2"></i>
+                What You Can Do
+            </h3>
+            
+            <ol class="text-sm text-yellow-800 space-y-2">
+                <li class="flex items-start">
+                    <span class="flex-shrink-0 w-6 h-6 bg-yellow-200 text-yellow-800 rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">1</span>
+                    <span>Check your internet connection and try again</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="flex-shrink-0 w-6 h-6 bg-yellow-200 text-yellow-800 rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">2</span>
+                    <span>Verify all required fields are completed correctly</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="flex-shrink-0 w-6 h-6 bg-yellow-200 text-yellow-800 rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">3</span>
+                    <span>Try selecting a different appointment time</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="flex-shrink-0 w-6 h-6 bg-yellow-200 text-yellow-800 rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">4</span>
+                    <span>Contact our support team if the problem persists</span>
+                </li>
+            </ol>
+        </div>
+        
+        <!-- Contact Support -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+            <h3 class="text-sm font-medium text-gray-900 mb-2">Need Help?</h3>
+            <p class="text-sm text-gray-600 mb-3">
+                Our support team is available to help you complete your booking:
+            </p>
+            <div class="flex flex-col sm:flex-row gap-2 justify-center">
+                <a href="tel:555-123-4567" 
+                   class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                    <i data-lucide="phone" class="h-4 w-4 mr-2"></i>
+                    Call: (555) 123-4567
+                </a>
+                <a href="mailto:support@sleepstudy.com" 
+                   class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                    <i data-lucide="mail" class="h-4 w-4 mr-2"></i>
+                    Email Support
+                </a>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button hx-get="/htmx/booking/step/1" 
+                    hx-target="#booking-content"
+                    hx-swap="innerHTML"
+                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-patient-600 hover:bg-patient-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                <i data-lucide="refresh-cw" class="h-5 w-5 mr-2"></i>
+                Try Again
+            </button>
+            
+            <a href="/dashboard" 
+               class="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-2"></i>
+                Return to Dashboard
+            </a>
+        </div>
+    </div>
+</div> 

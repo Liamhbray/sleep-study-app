@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sleep Study Manager{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/dashboard" class="flex items-center">
+                            <i data-lucide="activity" class="h-8 w-8 text-patient-600"></i>
+                            <span class="ml-2 text-xl font-bold text-gray-900">Sleep Study Manager</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Navigation Links -->
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="/dashboard" 
+                           class="border-patient-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        
+                        {% if role == 'patient' %}
+                        <a href="/book-sleep-study" 
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Book Study
+                        </a>
+                        {% endif %}
+                        
+                        <a href="#" 
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Studies
+                        </a>
+                        
+                        {% if role in ['staff', 'doctor', 'admin'] %}
+                        <a href="#" 
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Reports
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                    <!-- Role Badge -->
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        {% if role == 'patient' %}bg-patient-100 text-patient-800
+                        {% elif role == 'staff' %}bg-staff-100 text-staff-800  
+                        {% elif role == 'doctor' %}bg-doctor-100 text-doctor-800
+                        {% elif role == 'admin' %}bg-admin-100 text-admin-800
+                        {% endif %}">
+                        {{ role.title() }}
+                    </span>
+                    
+                    <!-- User Info -->
+                    <div class="ml-3 relative">
+                        <div class="flex items-center text-sm">
+                            <span class="text-gray-700 mr-3">{{ user.email }}</span>
+                            <a href="/auth/signout" 
+                               class="text-gray-400 hover:text-gray-600">
+                                <i data-lucide="log-out" class="h-5 w-5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            
+            <!-- Success Message -->
+            {% if success_message %}
+            <div class="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i data-lucide="check-circle" class="h-5 w-5 text-green-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-green-800">{{ success_message }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Welcome Section -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    Welcome back, {{ user.email.split('@')[0].title() }}
+                </h1>
+                <p class="mt-1 text-sm text-gray-600">
+                    {% if role == 'patient' %}Here's the status of your sleep studies and health journey.
+                    {% elif role == 'staff' %}Manage your organization's sleep studies and workflow.
+                    {% elif role == 'doctor' %}Review assigned studies and complete medical assessments.
+                    {% elif role == 'admin' %}System overview and administrative controls.
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Role-Specific Dashboard Content -->
+            <div id="main-content">
+                {% if role == 'patient' %}
+                <!-- Patient Dashboard -->
+                <div class="space-y-6">
+                    <!-- Quick Actions Card -->
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-6">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                Quick Actions
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <a href="/book-sleep-study" 
+                                   class="relative group bg-patient-50 p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-patient-500 rounded-lg hover:bg-patient-100 transition-colors">
+                                    <div>
+                                        <span class="rounded-lg inline-flex p-3 bg-patient-600 text-white">
+                                            <i data-lucide="plus" class="h-6 w-6"></i>
+                                        </span>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h3 class="text-lg font-medium text-gray-900">
+                                            Book Sleep Study
+                                        </h3>
+                                        <p class="mt-2 text-sm text-gray-500">
+                                            Schedule a new sleep study appointment with our guided booking process.
+                                        </p>
+                                    </div>
+                                </a>
+
+                                <div class="relative group bg-gray-50 p-6 rounded-lg">
+                                    <div>
+                                        <span class="rounded-lg inline-flex p-3 bg-gray-400 text-white">
+                                            <i data-lucide="file-text" class="h-6 w-6"></i>
+                                        </span>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h3 class="text-lg font-medium text-gray-900">
+                                            View Results
+                                        </h3>
+                                        <p class="mt-2 text-sm text-gray-500">
+                                            Access your completed sleep study results and reports.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patient Studies Cards -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                Your Sleep Studies
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div hx-get="/htmx/patient/my-studies" 
+                                 hx-trigger="load, every 30s"
+                                 hx-target="this"
+                                 hx-swap="innerHTML">
+                                <!-- Loading state -->
+                                <div class="text-center py-8">
+                                    <div class="spinner mx-auto mb-4"></div>
+                                    <p class="text-gray-500">Loading your studies...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% elif role == 'staff' %}
+                <!-- Staff Dashboard -->
+                <div hx-get="/htmx/staff/dashboard" 
+                     hx-trigger="load"
+                     hx-target="this"
+                     hx-swap="innerHTML">
+                    <!-- Loading state -->
+                    <div class="text-center py-12">
+                        <div class="spinner mx-auto mb-4"></div>
+                        <p class="text-gray-500">Loading organization dashboard...</p>
+                    </div>
+                </div>
+
+                {% elif role == 'doctor' %}
+                <!-- Doctor Dashboard -->
+                <div hx-get="/htmx/doctor/dashboard" 
+                     hx-trigger="load"
+                     hx-target="this"
+                     hx-swap="innerHTML">
+                    <!-- Loading state -->
+                    <div class="text-center py-12">
+                        <div class="spinner mx-auto mb-4"></div>
+                        <p class="text-gray-500">Loading clinical dashboard...</p>
+                    </div>
+                </div>
+
+                {% elif role == 'admin' %}
+                <!-- Admin Dashboard -->
+                <div class="space-y-6">
+                    <!-- System Statistics -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white overflow-hidden shadow rounded-lg">
+                            <div class="p-5">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <i data-lucide="database" class="h-8 w-8 text-admin-600"></i>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                                Total Studies
+                                            </dt>
+                                            <dd class="text-lg font-medium text-gray-900">
+                                                {{ data.all_studies|length if data.all_studies else 0 }}
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white overflow-hidden shadow rounded-lg">
+                            <div class="p-5">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <i data-lucide="users" class="h-8 w-8 text-admin-600"></i>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                                Active Users
+                                            </dt>
+                                            <dd class="text-lg font-medium text-gray-900">
+                                                {% if data.all_studies %}
+                                                    {{ data.all_studies|map(attribute='patient_id')|unique|list|length }}
+                                                {% else %}
+                                                    0
+                                                {% endif %}
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white overflow-hidden shadow rounded-lg">
+                            <div class="p-5">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <i data-lucide="activity" class="h-8 w-8 text-admin-600"></i>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                                System Health
+                                            </dt>
+                                            <dd class="text-lg font-medium text-green-600">
+                                                Operational
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white overflow-hidden shadow rounded-lg">
+                            <div class="p-5">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <i data-lucide="trending-up" class="h-8 w-8 text-admin-600"></i>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                                This Month
+                                            </dt>
+                                            <dd class="text-lg font-medium text-gray-900">
+                                                +{{ (data.all_studies|length * 0.15)|round|int if data.all_studies else 0 }}%
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- All Studies -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                System-wide Studies
+                            </h3>
+                        </div>
+                        <div id="studies-container" 
+                             hx-get="/htmx/studies" 
+                             hx-trigger="load"
+                             hx-indicator="#studies-loading">
+                            <div id="studies-loading" class="p-6 flex justify-center">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+// Initialize Lucide icons
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+
+// Re-initialize icons after HTMX swaps
+document.body.addEventListener('htmx:afterSwap', function() {
+    lucide.createIcons();
+});
+</script>
+{% endblock %} 

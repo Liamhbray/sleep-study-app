@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - Sleep Study Manager{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="flex justify-center">
+            <a href="/" class="flex items-center">
+                <i data-lucide="activity" class="h-10 w-10 text-patient-600"></i>
+                <span class="ml-2 text-2xl font-bold text-gray-900">Sleep Study Manager</span>
+            </a>
+        </div>
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+            Or
+            <button onclick="showSignup()" class="font-medium text-patient-600 hover:text-patient-500">
+                create a new account
+            </button>
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            
+            <!-- Error Messages -->
+            {% if error %}
+            <div class="rounded-md bg-red-50 p-4 mb-6">
+                <div class="flex">
+                    <i data-lucide="alert-circle" class="h-5 w-5 text-red-400"></i>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">
+                            Error
+                        </h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            {{ error }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Success Messages -->
+            {% if success %}
+            <div class="rounded-md bg-green-50 p-4 mb-6">
+                <div class="flex">
+                    <i data-lucide="check-circle" class="h-5 w-5 text-green-400"></i>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-800">
+                            Success
+                        </h3>
+                        <div class="mt-2 text-sm text-green-700">
+                            {{ success }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Sign In Form -->
+            <form id="signin-form" class="space-y-6" action="/auth/signin" method="POST">
+                <div>
+                    <label for="signin-email" class="block text-sm font-medium text-gray-700">
+                        Email address
+                    </label>
+                    <div class="mt-1 relative">
+                        <input id="signin-email" 
+                               name="email" 
+                               type="email" 
+                               autocomplete="email" 
+                               required 
+                               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-patient-500 focus:border-patient-500 sm:text-sm">
+                        <i data-lucide="mail" class="absolute right-3 top-2.5 h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="signin-password" class="block text-sm font-medium text-gray-700">
+                        Password
+                    </label>
+                    <div class="mt-1 relative">
+                        <input id="signin-password" 
+                               name="password" 
+                               type="password" 
+                               autocomplete="current-password" 
+                               required 
+                               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-patient-500 focus:border-patient-500 sm:text-sm">
+                        <i data-lucide="lock" class="absolute right-3 top-2.5 h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember_me" 
+                               name="remember_me" 
+                               type="checkbox" 
+                               class="h-4 w-4 text-patient-600 focus:ring-patient-500 border-gray-300 rounded">
+                        <label for="remember_me" class="ml-2 block text-sm text-gray-900">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <div class="text-sm">
+                        <a href="#" class="font-medium text-patient-600 hover:text-patient-500">
+                            Forgot your password?
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" 
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-patient-600 hover:bg-patient-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i data-lucide="log-in" class="h-5 w-5 text-patient-500 group-hover:text-patient-400"></i>
+                        </span>
+                        Sign in
+                    </button>
+                </div>
+            </form>
+
+            <!-- Sign Up Form (Hidden by default) -->
+            <form id="signup-form" class="space-y-6 hidden" action="/auth/signup" method="POST">
+                <div>
+                    <label for="signup-email" class="block text-sm font-medium text-gray-700">
+                        Email address
+                    </label>
+                    <div class="mt-1 relative">
+                        <input id="signup-email" 
+                               name="email" 
+                               type="email" 
+                               autocomplete="email" 
+                               required 
+                               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-patient-500 focus:border-patient-500 sm:text-sm">
+                        <i data-lucide="mail" class="absolute right-3 top-2.5 h-5 w-5 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="signup-password" class="block text-sm font-medium text-gray-700">
+                        Password
+                    </label>
+                    <div class="mt-1 relative">
+                        <input id="signup-password" 
+                               name="password" 
+                               type="password" 
+                               autocomplete="new-password" 
+                               required 
+                               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-patient-500 focus:border-patient-500 sm:text-sm">
+                        <i data-lucide="lock" class="absolute right-3 top-2.5 h-5 w-5 text-gray-400"></i>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                        Must be at least 8 characters with letters and numbers
+                    </p>
+                </div>
+
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700">
+                        Account Type
+                    </label>
+                    <select id="role" 
+                            name="role" 
+                            required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-patient-500 focus:border-patient-500 sm:text-sm">
+                        <option value="patient">Patient - Book and manage sleep studies</option>
+                        <option value="staff">Staff - Coordinate appointments and workflows</option>
+                        <option value="doctor">Doctor - Clinical oversight and reviews</option>
+                        <option value="admin">Administrator - System management</option>
+                    </select>
+                </div>
+
+                <!-- Organization ID for staff (shown conditionally) -->
+                <div id="organization-field" class="hidden">
+                    <label for="organization_id" class="block text-sm font-medium text-gray-700">
+                        Organization ID
+                    </label>
+                    <div class="mt-1 relative">
+                        <input id="organization_id" 
+                               name="organization_id" 
+                               type="text" 
+                               placeholder="Enter your organization ID"
+                               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-patient-500 focus:border-patient-500 sm:text-sm">
+                        <i data-lucide="building" class="absolute right-3 top-2.5 h-5 w-5 text-gray-400"></i>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                        Required for staff accounts - contact your administrator
+                    </p>
+                </div>
+
+                <div>
+                    <button type="submit" 
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-patient-600 hover:bg-patient-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i data-lucide="user-plus" class="h-5 w-5 text-patient-500 group-hover:text-patient-400"></i>
+                        </span>
+                        Create Account
+                    </button>
+                </div>
+            </form>
+
+            <!-- Toggle between forms -->
+            <div class="mt-6">
+                <div id="signin-toggle" class="text-center text-sm hidden">
+                    <span class="text-gray-600">Already have an account? </span>
+                    <button onclick="showSignin()" class="font-medium text-patient-600 hover:text-patient-500">
+                        Sign in
+                    </button>
+                </div>
+            </div>
+
+            <!-- Demo Information -->
+            <div class="mt-8 p-4 bg-blue-50 rounded-md">
+                <div class="flex">
+                    <i data-lucide="info" class="h-5 w-5 text-blue-400 mt-0.5"></i>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800">
+                            Demo Environment
+                        </h3>
+                        <div class="mt-2 text-sm text-blue-700">
+                            <p class="mb-2">This is a demonstration system. You can:</p>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Create test accounts with any valid email</li>
+                                <li>Explore the booking process as a patient</li>
+                                <li>Test staff and admin features</li>
+                                <li>Upload sample files for testing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showSignup() {
+    document.getElementById('signin-form').classList.add('hidden');
+    document.getElementById('signup-form').classList.remove('hidden');
+    document.getElementById('signin-toggle').classList.remove('hidden');
+    document.querySelector('h2').textContent = 'Create your account';
+    document.querySelector('p').innerHTML = 'Or <button onclick="showSignin()" class="font-medium text-patient-600 hover:text-patient-500">sign in to existing account</button>';
+}
+
+function showSignin() {
+    document.getElementById('signup-form').classList.add('hidden');
+    document.getElementById('signin-form').classList.remove('hidden');
+    document.getElementById('signin-toggle').classList.add('hidden');
+    document.querySelector('h2').textContent = 'Sign in to your account';
+    document.querySelector('p').innerHTML = 'Or <button onclick="showSignup()" class="font-medium text-patient-600 hover:text-patient-500">create a new account</button>';
+}
+
+// Show organization field for staff accounts
+document.getElementById('role').addEventListener('change', function() {
+    const orgField = document.getElementById('organization-field');
+    if (this.value === 'staff') {
+        orgField.classList.remove('hidden');
+        document.getElementById('organization_id').required = true;
+    } else {
+        orgField.classList.add('hidden');
+        document.getElementById('organization_id').required = false;
+    }
+});
+
+// Initialize Lucide icons
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+</script>
+{% endblock %} 

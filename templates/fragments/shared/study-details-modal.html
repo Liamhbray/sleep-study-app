@@ -1,0 +1,240 @@
+<!-- Shared Study Details Modal -->
+<div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50" onclick="this.remove()">
+    <div class="bg-white rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h2 class="text-xl font-medium text-gray-900">Sleep Study Details</h2>
+            <button onclick="this.closest('.fixed').remove()" 
+                    class="text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="h-6 w-6"></i>
+            </button>
+        </div>
+        
+        <div class="p-6 space-y-6">
+            <!-- Study Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-medium text-gray-900 mb-3">Study Information</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Study ID:</span>
+                            <span class="font-mono text-gray-900">{{ study.id[:8] }}...</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Status:</span>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                         {% if study.current_state == 'booked' %}bg-blue-100 text-blue-800
+                                         {% elif study.current_state == 'active' %}bg-green-100 text-green-800  
+                                         {% elif study.current_state == 'review' %}bg-yellow-100 text-yellow-800
+                                         {% elif study.current_state == 'completed' %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ study.current_state|title }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Study Date:</span>
+                            <span class="text-gray-900">{{ study.start_date }}</span>
+                        </div>
+                        {% if study.end_date %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Completed:</span>
+                            <span class="text-gray-900">{{ study.end_date }}</span>
+                        </div>
+                        {% endif %}
+                        {% if study.device_name %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Device:</span>
+                            <span class="text-gray-900">{{ study.device_name }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Patient Information (visible to staff/doctor) -->
+                {% if user.role in ['staff', 'doctor', 'admin'] %}
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-medium text-gray-900 mb-3">Patient Information</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Name:</span>
+                            <span class="text-gray-900">{{ study.patient_name or 'Patient' }}</span>
+                        </div>
+                        {% if study.patient_age %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Age:</span>
+                            <span class="text-gray-900">{{ study.patient_age }}y</span>
+                        </div>
+                        {% endif %}
+                        {% if study.patient_email %}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Email:</span>
+                            <span class="text-gray-900">{{ study.patient_email }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Assessment Scores -->
+            {% if study.epworth_score is not none or study.osa50_score is not none %}
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-medium text-gray-900 mb-3">Assessment Results</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% if study.epworth_score is not none %}
+                    <div class="bg-white p-3 rounded">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Epworth Sleepiness Scale</span>
+                            <span class="text-lg font-bold 
+                                         {% if study.epworth_score > 15 %}text-red-600
+                                         {% elif study.epworth_score > 10 %}text-yellow-600
+                                         {% else %}text-green-600{% endif %}">
+                                {{ study.epworth_score }}/24
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-600">
+                            {% if study.epworth_score > 15 %}Severe daytime sleepiness
+                            {% elif study.epworth_score > 10 %}Moderate daytime sleepiness
+                            {% else %}Normal daytime sleepiness{% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if study.osa50_score is not none %}
+                    <div class="bg-white p-3 rounded">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">OSA-50 Risk Assessment</span>
+                            <span class="text-lg font-bold 
+                                         {% if study.osa50_score >= 3 %}text-red-600
+                                         {% else %}text-green-600{% endif %}">
+                                {{ study.osa50_score }}/5
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-600">
+                            {% if study.osa50_score >= 3 %}High risk for sleep apnea
+                            {% else %}Low risk for sleep apnea{% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Files and Documents -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Referral Documents -->
+                {% if study.referrals %}
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-medium text-gray-900 mb-3">Referral Documents</h3>
+                    <div class="space-y-2">
+                        {% for referral in study.referrals %}
+                        <div class="flex items-center justify-between p-2 bg-white rounded">
+                            <div class="flex items-center">
+                                <i data-lucide="file-text" class="h-4 w-4 text-gray-500 mr-2"></i>
+                                <span class="text-sm text-gray-900">Medical Referral</span>
+                            </div>
+                            <button hx-get="{{ referral.file_url }}" 
+                                    target="_blank"
+                                    class="text-blue-600 hover:text-blue-800 text-sm">
+                                View
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Sleep Data Files -->
+                {% if study.sleep_data_files %}
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-medium text-gray-900 mb-3">Sleep Data Files</h3>
+                    <div class="space-y-2">
+                        {% for data_file in study.sleep_data_files %}
+                        <div class="flex items-center justify-between p-2 bg-white rounded">
+                            <div class="flex items-center">
+                                <i data-lucide="activity" class="h-4 w-4 text-green-500 mr-2"></i>
+                                <span class="text-sm text-gray-900">Sleep Data</span>
+                            </div>
+                            {% if user.role in ['staff', 'doctor', 'admin'] %}
+                            <button hx-get="/htmx/download/{{ data_file.id }}" 
+                                    class="text-blue-600 hover:text-blue-800 text-sm">
+                                Download
+                            </button>
+                            {% else %}
+                            <span class="text-xs text-gray-500">Available to doctor</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Doctor Reports -->
+                {% if study.doctor_reports %}
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-medium text-gray-900 mb-3">Medical Reports</h3>
+                    <div class="space-y-2">
+                        {% for report in study.doctor_reports %}
+                        <div class="flex items-center justify-between p-2 bg-white rounded">
+                            <div class="flex items-center">
+                                <i data-lucide="file-check" class="h-4 w-4 text-purple-500 mr-2"></i>
+                                <span class="text-sm text-gray-900">Medical Report</span>
+                            </div>
+                            <button hx-get="{{ report.file_url }}" 
+                                    target="_blank"
+                                    class="text-blue-600 hover:text-blue-800 text-sm">
+                                Download
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Action Buttons (Role-Specific) -->
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                {% if user.role == 'patient' and study.current_state == 'active' %}
+                <button hx-post="/htmx/patient/studies/{{ study.id }}/confirm-return"
+                        hx-target="#main-content"
+                        hx-confirm="Confirm device return?"
+                        onclick="this.closest('.fixed').remove()"
+                        class="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700">
+                    Confirm Device Return
+                </button>
+                {% elif user.role == 'staff' %}
+                    {% if study.current_state == 'booked' %}
+                    <button hx-get="/htmx/staff/assign-device/{{ study.id }}"
+                            hx-target="#modal-container"
+                            onclick="this.closest('.fixed').remove()"
+                            class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700">
+                        Assign Device
+                    </button>
+                    {% elif study.current_state == 'review' %}
+                    <button hx-get="/htmx/staff/upload-data/{{ study.id }}"
+                            hx-target="#modal-container"
+                            onclick="this.closest('.fixed').remove()"
+                            class="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700">
+                        Upload Sleep Data
+                    </button>
+                    {% endif %}
+                {% elif user.role == 'doctor' and study.current_state == 'review' and study.sleep_data_files %}
+                <button hx-get="/htmx/doctor/study-review/{{ study.id }}"
+                        hx-target="#modal-container"
+                        onclick="this.closest('.fixed').remove()"
+                        class="bg-purple-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-purple-700">
+                    Complete Review
+                </button>
+                {% endif %}
+                
+                <button onclick="this.closest('.fixed').remove()" 
+                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm font-medium hover:bg-gray-400">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Re-initialize Lucide icons in modal
+lucide.createIcons();
+</script> 

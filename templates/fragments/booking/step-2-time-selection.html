@@ -1,0 +1,81 @@
+<!-- Progress Bar -->
+<div hx-swap-oob="innerHTML:#progress-container">
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+        <div class="bg-patient-600 h-2 rounded-full" style="width: 28%"></div>
+    </div>
+    <div class="flex justify-between text-xs text-gray-500">
+        <span>Start</span>
+        <span class="font-medium text-patient-600">Time</span>
+        <span>Details</span>
+        <span>Referral</span>
+        <span>Epworth</span>
+        <span>OSA-50</span>
+        <span>Confirm</span>
+    </div>
+</div>
+
+<!-- Step Content -->
+<div class="bg-white shadow-sm rounded-lg p-8">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            Select Appointment Time
+        </h2>
+        <p class="text-gray-600">
+            Choose your preferred date and time for the sleep study.
+        </p>
+    </div>
+    
+    <form hx-post="/htmx/booking/save-step" 
+          hx-target="#booking-content"
+          hx-swap="innerHTML"
+          hx-indicator="#step-loading"
+          class="space-y-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for slot in available_slots %}
+            <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:bg-gray-50 transition-colors has-[:checked]:ring-2 has-[:checked]:ring-patient-500 has-[:checked]:border-patient-500">
+                <input type="radio" 
+                       name="appointment_time" 
+                       value="{{ slot.id }}"
+                       data-date="{{ slot.date }}"
+                       data-time="{{ slot.time }}"
+                       class="sr-only"
+                       required>
+                <span class="flex flex-1">
+                    <span class="flex flex-col">
+                        <span class="block text-sm font-medium text-gray-900">
+                            {{ slot.display_date }}
+                        </span>
+                        <span class="mt-1 flex items-center text-sm text-gray-500">
+                            <i data-lucide="clock" class="h-4 w-4 mr-1"></i>
+                            {{ slot.display_time }}
+                        </span>
+                    </span>
+                </span>
+                <i data-lucide="check-circle" class="h-5 w-5 text-patient-600 hidden peer-checked:block"></i>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <div class="flex justify-between">
+            <button type="button"
+                    hx-get="/htmx/booking/step/1" 
+                    hx-target="#booking-content"
+                    hx-swap="innerHTML"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i>
+                Back
+            </button>
+            
+            <button type="submit"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-patient-600 hover:bg-patient-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                Continue
+                <i data-lucide="arrow-right" class="h-4 w-4 ml-2"></i>
+            </button>
+        </div>
+        
+        <div id="step-loading" class="htmx-indicator flex justify-center">
+            <div class="spinner"></div>
+        </div>
+    </form>
+</div> 

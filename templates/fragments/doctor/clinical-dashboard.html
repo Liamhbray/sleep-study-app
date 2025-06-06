@@ -1,0 +1,212 @@
+<!-- Doctor Clinical Dashboard - Review-Focused Interface -->
+<div class="space-y-6">
+    
+    <!-- Clinical Overview Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Studies Awaiting Review -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-medium text-gray-900">Awaiting Review</h3>
+                <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">
+                    {{ studies_count.review or 0 }}
+                </span>
+            </div>
+            
+            <div hx-get="/htmx/doctor/pending-reviews" hx-trigger="load, every 60s" hx-target="this" hx-swap="innerHTML">
+                <!-- Priority Studies Summary -->
+                {% for study in pending_studies[:3] %}
+                <div class="flex items-center justify-between p-2 mb-2 {% if study.priority == 'high' %}bg-red-50 border-l-4 border-red-500{% else %}bg-gray-50{% endif %} rounded">
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">{{ study.patient_name }}</p>
+                        <div class="flex items-center space-x-2 text-xs text-gray-600">
+                            <span>ESS: {{ study.epworth_score }}/24</span>
+                            <span>•</span>
+                            <span>OSA-50: {{ study.osa50_score }}/5</span>
+                        </div>
+                    </div>
+                    {% if study.priority == 'high' %}
+                    <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                
+                {% if not pending_studies %}
+                <div class="text-center py-4">
+                    <i data-lucide="check-circle" class="h-8 w-8 text-green-500 mx-auto mb-2"></i>
+                    <p class="text-sm text-gray-500">No studies pending review</p>
+                </div>
+                {% endif %}
+                
+                {% if pending_studies|length > 3 %}
+                <div class="text-center pt-2">
+                    <button hx-get="/htmx/doctor/all-pending"
+                            hx-target="#main-content"
+                            class="text-sm text-purple-600 hover:text-purple-800 font-medium">
+                        View all {{ pending_studies|length }} studies →
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Recent Completions -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Recently Completed</h3>
+            <div hx-get="/htmx/doctor/recent-completions" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+                {% for study in recent_completed[:3] %}
+                <div class="flex items-center justify-between p-2 mb-2 bg-green-50 rounded">
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">{{ study.patient_name }}</p>
+                        <p class="text-xs text-gray-600">Completed: {{ study.completed_date }}</p>
+                    </div>
+                    <div class="text-xs text-green-600 font-medium">
+                        <i data-lucide="check" class="inline h-3 w-3"></i>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% if not recent_completed %}
+                <div class="text-center py-4">
+                    <i data-lucide="clipboard" class="h-8 w-8 text-gray-400 mx-auto mb-2"></i>
+                    <p class="text-sm text-gray-500">No recent completions</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Priority Studies for Review -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">Studies for Review</h3>
+            <div class="flex items-center space-x-2">
+                <!-- Filter/Sort Controls -->
+                <select hx-get="/htmx/doctor/studies"
+                        hx-target="#doctor-studies-content"
+                        hx-trigger="change"
+                        name="sort"
+                        class="text-sm border-gray-300 rounded-md">
+                    <option value="priority">By Priority</option>
+                    <option value="date">By Date</option>
+                    <option value="score">By Risk Score</option>
+                </select>
+                
+                <button hx-get="/htmx/doctor/studies"
+                        hx-target="#doctor-studies-content"
+                        hx-trigger="click"
+                        class="text-sm text-gray-500 hover:text-gray-700">
+                    <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="doctor-studies-content">
+            <div hx-get="/htmx/doctor/studies-list" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+                <!-- Loading State -->
+                <div class="p-6 text-center text-gray-500">
+                    <div class="spinner inline-block mb-2"></div>
+                    <p>Loading studies for review...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Study Review List -->
+    <div class="divide-y divide-gray-200" id="review-studies-list">
+        {% for study in assigned_studies %}
+        <div class="p-4 hover:bg-gray-50 transition-colors">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <!-- Patient Summary -->
+                    <div class="flex items-center space-x-4">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ study.patient_name }}</p>
+                            <p class="text-sm text-gray-500">{{ study.age }}y, {{ study.gender }} • Study: {{ study.start_date }}</p>
+                        </div>
+                        
+                        <!-- Clinical Risk Indicators -->
+                        <div class="flex space-x-3 text-xs">
+                            <span class="px-2 py-1 rounded {% if study.epworth_score > 15 %}bg-red-100 text-red-800{% elif study.epworth_score > 10 %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                ESS: {{ study.epworth_score }}/24
+                            </span>
+                            <span class="px-2 py-1 rounded {% if study.osa50_score >= 3 %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                OSA-50: {{ study.osa50_score }}/5
+                            </span>
+                        </div>
+                        
+                        <!-- Data Availability Indicators -->
+                        <div class="flex items-center space-x-2 text-xs">
+                            {% if study.referrals %}
+                            <div class="flex items-center text-green-600">
+                                <i data-lucide="file-text" class="h-3 w-3 mr-1"></i>
+                                <span>Referral</span>
+                            </div>
+                            {% endif %}
+                            {% if study.sleep_data_files %}
+                            <div class="flex items-center text-green-600">
+                                <i data-lucide="activity" class="h-3 w-3 mr-1"></i>
+                                <span>Sleep Data</span>
+                            </div>
+                            {% endif %}
+                            {% if study.priority == 'high' %}
+                            <div class="flex items-center text-red-600">
+                                <i data-lucide="alert-triangle" class="h-3 w-3 mr-1"></i>
+                                <span>Urgent</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Clinical Summary (Expandable) -->
+                    <details class="mt-2">
+                        <summary class="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
+                            Clinical Summary
+                        </summary>
+                        <div class="mt-2 text-xs text-gray-600 bg-gray-50 p-3 rounded">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p><strong>Epworth Interpretation:</strong></p>
+                                    <p>{{ study.epworth_interpretation }}</p>
+                                </div>
+                                <div>
+                                    <p><strong>OSA-50 Risk:</strong></p>
+                                    <p>{{ study.osa50_interpretation }}</p>
+                                </div>
+                            </div>
+                            {% if study.chief_complaint %}
+                            <div class="mt-2">
+                                <p><strong>Chief Complaint:</strong></p>
+                                <p>{{ study.chief_complaint }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </details>
+                </div>
+                
+                <!-- Action Button -->
+                <div class="ml-4">
+                    <button hx-get="/htmx/doctor/study-review/{{ study.id }}"
+                            hx-target="#modal-container"
+                            class="bg-purple-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1">
+                        <i data-lucide="stethoscope" class="inline h-4 w-4 mr-1"></i>
+                        Review Study
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% if not assigned_studies %}
+        <div class="p-8 text-center">
+            <i data-lucide="clipboard-check" class="h-12 w-12 text-gray-400 mx-auto mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Studies Assigned</h3>
+            <p class="text-sm text-gray-500">
+                You currently have no sleep studies assigned for review.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Container for Study Reviews -->
+<div id="modal-container"></div> 

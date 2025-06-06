@@ -1,0 +1,139 @@
+<!-- Patient Studies - Mobile-First Card Layout -->
+<div class="space-y-4">
+    {% if patient_studies %}
+        {% for study in patient_studies %}
+        <div id="study-card-{{ study.id }}" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <!-- Status Header -->
+            <div class="flex items-center justify-between mb-3">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                             {% if study.current_state == 'booked' %}bg-blue-100 text-blue-800
+                             {% elif study.current_state == 'active' %}bg-green-100 text-green-800  
+                             {% elif study.current_state == 'review' %}bg-yellow-100 text-yellow-800
+                             {% elif study.current_state == 'completed' %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ study.current_state|title }}
+                </span>
+                <span class="text-sm text-gray-500">{{ study.start_date }}</span>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <div class="flex justify-between text-xs text-gray-600 mb-1">
+                    <span>Progress</span>
+                    <span>Step {% if study.current_state == 'booked' %}1{% elif study.current_state == 'active' %}2{% elif study.current_state == 'review' %}3{% elif study.current_state == 'completed' %}4{% endif %} of 4</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                         style="width: {% if study.current_state == 'booked' %}25%{% elif study.current_state == 'active' %}50%{% elif study.current_state == 'review' %}75%{% elif study.current_state == 'completed' %}100%{% endif %}"></div>
+                </div>
+            </div>
+            
+            <!-- Next Action (Mobile-Friendly) -->
+            <div class="space-y-2">
+                {% if study.current_state == 'booked' %}
+                <div class="bg-blue-50 p-3 rounded">
+                    <p class="text-sm text-blue-800">
+                        <i data-lucide="clock" class="inline h-4 w-4 mr-1"></i>
+                        <strong>Booking Confirmed</strong><br>
+                        <span class="text-xs">We're preparing your device. You'll be notified when it's ready for pickup.</span>
+                    </p>
+                </div>
+                
+                {% elif study.current_state == 'active' %}
+                <div class="bg-green-50 p-3 rounded mb-2">
+                    <p class="text-sm text-green-800">
+                        <i data-lucide="moon" class="inline h-4 w-4 mr-1"></i>
+                        <strong>Device Assigned</strong><br>
+                        <span class="text-xs">Complete your study and return the device when finished.</span>
+                    </p>
+                </div>
+                <button hx-post="/htmx/patient/studies/{{ study.id }}/confirm-return"
+                        hx-target="#study-card-{{ study.id }}"
+                        hx-swap="outerHTML"
+                        hx-confirm="Have you completed your study and are ready to return the device?"
+                        hx-indicator="#loading-{{ study.id }}"
+                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <i data-lucide="check" class="inline h-4 w-4 mr-1"></i>
+                    Confirm Device Return
+                </button>
+                <div id="loading-{{ study.id }}" class="htmx-indicator text-center text-sm text-gray-500 mt-2">
+                    Processing...
+                </div>
+                
+                {% elif study.current_state == 'review' %}
+                <div class="bg-yellow-50 p-3 rounded">
+                    <p class="text-sm text-yellow-800">
+                        <i data-lucide="clipboard" class="inline h-4 w-4 mr-1"></i>
+                        <strong>Under Medical Review</strong><br>
+                        <span class="text-xs">Your doctor is reviewing your sleep data. Results will be available soon.</span>
+                    </p>
+                </div>
+                
+                {% elif study.current_state == 'completed' %}
+                <div class="bg-gray-50 p-3 rounded mb-2">
+                    <p class="text-sm text-gray-800">
+                        <i data-lucide="check-circle" class="inline h-4 w-4 mr-1"></i>
+                        <strong>Study Complete</strong><br>
+                        <span class="text-xs">Your sleep study report is ready for download.</span>
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 gap-2">
+                    <button hx-get="/htmx/patient/studies/{{ study.id }}/report"
+                            hx-target="#modal-container"
+                            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i data-lucide="download" class="inline h-4 w-4 mr-1"></i>
+                        Download Report
+                    </button>
+                    <button hx-get="/htmx/patient/studies/{{ study.id }}/scores"
+                            hx-target="#modal-container"
+                            class="w-full bg-gray-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        <i data-lucide="bar-chart" class="inline h-4 w-4 mr-1"></i>
+                        View Scores
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Study Details (Collapsible on Mobile) -->
+            <details class="mt-3">
+                <summary class="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
+                    Study Details
+                </summary>
+                <div class="mt-2 text-xs text-gray-600 space-y-1">
+                    <div class="flex justify-between">
+                        <span>Study ID:</span>
+                        <span class="font-mono">{{ study.id[:8] }}...</span>
+                    </div>
+                    {% if study.device_name %}
+                    <div class="flex justify-between">
+                        <span>Device:</span>
+                        <span>{{ study.device_name }}</span>
+                    </div>
+                    {% endif %}
+                    {% if study.doctor_name %}
+                    <div class="flex justify-between">
+                        <span>Doctor:</span>
+                        <span>{{ study.doctor_name }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </details>
+        </div>
+        {% endfor %}
+    {% else %}
+    <!-- No Studies State -->
+    <div class="text-center py-8">
+        <div class="bg-gray-50 rounded-lg p-6">
+            <i data-lucide="moon" class="h-12 w-12 text-gray-400 mx-auto mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Sleep Studies Yet</h3>
+            <p class="text-sm text-gray-500 mb-4">
+                Start your journey to better sleep health by booking your first study.
+            </p>
+            <a href="/book-sleep-study" 
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <i data-lucide="plus" class="h-4 w-4 mr-2"></i>
+                Book Sleep Study
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div> 

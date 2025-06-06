@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sleep Study Management System{% endblock %}</title>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Healthcare Theme -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        healthcare: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe', 
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e'
+                        },
+                        patient: {
+                            500: '#3b82f6',
+                            600: '#2563eb'
+                        },
+                        staff: {
+                            500: '#10b981',
+                            600: '#059669'
+                        },
+                        doctor: {
+                            500: '#8b5cf6',
+                            600: '#7c3aed'
+                        },
+                        admin: {
+                            500: '#f59e0b',
+                            600: '#d97706'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        .htmx-indicator {
+            opacity: 0;
+            transition: opacity 500ms ease-in;
+        }
+        .htmx-request .htmx-indicator {
+            opacity: 1;
+        }
+        .htmx-request.htmx-indicator {
+            opacity: 1;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0ea5e9;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Role-based styling */
+        .role-patient { @apply border-l-4 border-patient-500 bg-blue-50; }
+        .role-staff { @apply border-l-4 border-staff-500 bg-green-50; }
+        .role-doctor { @apply border-l-4 border-doctor-500 bg-purple-50; }
+        .role-admin { @apply border-l-4 border-admin-500 bg-yellow-50; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    {% if session.user %}
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo and main nav -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i data-lucide="activity" class="h-8 w-8 text-healthcare-600"></i>
+                        <span class="ml-2 text-xl font-semibold text-gray-900">
+                            Sleep Study Manager
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- User menu -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                               {% if session.user.role == 'patient' %}bg-patient-100 text-patient-800
+                               {% elif session.user.role == 'staff' %}bg-staff-100 text-staff-800
+                               {% elif session.user.role == 'doctor' %}bg-doctor-100 text-doctor-800
+                               {% elif session.user.role == 'admin' %}bg-admin-100 text-admin-800
+                               {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ session.user.role|title or 'User' }}
+                        </span>
+                        <span class="text-sm text-gray-700">{{ session.user.email }}</span>
+                    </div>
+                    <a href="/auth/signout" 
+                       class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <i data-lucide="log-out" class="h-5 w-5"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main class="{% if session.user %}pt-8{% else %}pt-16{% endif %}">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Global HTMX Loading Indicator -->
+    <div id="loading-indicator" 
+         class="htmx-indicator fixed top-4 right-4 bg-healthcare-600 text-white px-4 py-2 rounded-md shadow-lg z-50">
+        <div class="flex items-center space-x-2">
+            <div class="spinner"></div>
+            <span>Loading...</span>
+        </div>
+    </div>
+    
+    <!-- Initialize Lucide Icons -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+        
+        // Refresh icons after HTMX swaps
+        document.body.addEventListener('htmx:afterSwap', function() {
+            lucide.createIcons();
+        });
+        
+        // Global HTMX configuration
+        htmx.config.globalViewTransitions = true;
+        htmx.config.defaultFocusScroll = true;
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

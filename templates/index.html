@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}Sleep Study Manager - Professional Sleep Study Management{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <div class="relative bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center py-6 md:justify-start md:space-x-10">
+                <!-- Logo -->
+                <div class="flex justify-start lg:w-0 lg:flex-1">
+                    <a href="/" class="flex items-center">
+                        <i data-lucide="activity" class="h-8 w-8 text-patient-600"></i>
+                        <span class="ml-2 text-xl font-bold text-gray-900">Sleep Study Manager</span>
+                    </a>
+                </div>
+                
+                <!-- Auth Button -->
+                <div class="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
+                    <a href="/auth" class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-patient-600 hover:bg-patient-700">
+                        Sign In
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero -->
+        <div class="relative">
+            <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gray-100"></div>
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="relative shadow-xl sm:rounded-2xl sm:overflow-hidden">
+                    <div class="absolute inset-0">
+                        <div class="absolute inset-0 bg-gradient-to-r from-patient-800 to-patient-600 mix-blend-multiply"></div>
+                    </div>
+                    <div class="relative px-4 py-16 sm:px-6 sm:py-24 lg:py-32 lg:px-8">
+                        <h1 class="text-center text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                            <span class="block text-white">Professional Sleep</span>
+                            <span class="block text-patient-200">Study Management</span>
+                        </h1>
+                        <p class="mt-6 max-w-lg mx-auto text-center text-xl text-patient-200 sm:max-w-3xl">
+                            Streamline your sleep study appointments, assessments, and patient management with our comprehensive healthcare platform.
+                        </p>
+                        <div class="mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center">
+                            <div class="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex">
+                                <a href="/auth" class="flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-patient-700 bg-white hover:bg-gray-50 sm:px-8">
+                                    Get Started
+                                </a>
+                                <a href="#features" class="flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-patient-500 bg-opacity-60 hover:bg-opacity-70 sm:px-8">
+                                    Learn More
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div id="features" class="py-16 bg-gray-50 overflow-hidden lg:py-24">
+            <div class="relative max-w-xl mx-auto px-4 sm:px-6 lg:px-8 lg:max-w-7xl">
+                <div class="relative">
+                    <h2 class="text-center text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                        Complete Sleep Study Solution
+                    </h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-center text-xl text-gray-500">
+                        Everything you need to manage sleep studies from booking to completion.
+                    </p>
+                </div>
+
+                <div class="relative mt-12 lg:mt-24 lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
+                    <div class="relative">
+                        <h3 class="text-2xl font-extrabold text-gray-900 tracking-tight sm:text-3xl">
+                            For Patients
+                        </h3>
+                        <p class="mt-3 text-lg text-gray-500">
+                            Easy online booking with guided questionnaires and secure document upload.
+                        </p>
+
+                        <dl class="mt-10 space-y-10">
+                            <div class="relative">
+                                <dt>
+                                    <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-patient-500 text-white">
+                                        <i data-lucide="calendar" class="h-6 w-6"></i>
+                                    </div>
+                                    <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Online Booking</p>
+                                </dt>
+                                <dd class="mt-2 ml-16 text-base text-gray-500">
+                                    Schedule your sleep study appointment with our easy 7-step booking process.
+                                </dd>
+                            </div>
+
+                            <div class="relative">
+                                <dt>
+                                    <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-patient-500 text-white">
+                                        <i data-lucide="clipboard-list" class="h-6 w-6"></i>
+                                    </div>
+                                    <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Health Assessments</p>
+                                </dt>
+                                <dd class="mt-2 ml-16 text-base text-gray-500">
+                                    Complete standardized sleep questionnaires including Epworth Scale and OSA-50 screening.
+                                </dd>
+                            </div>
+
+                            <div class="relative">
+                                <dt>
+                                    <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-patient-500 text-white">
+                                        <i data-lucide="shield" class="h-6 w-6"></i>
+                                    </div>
+                                    <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Secure & Private</p>
+                                </dt>
+                                <dd class="mt-2 ml-16 text-base text-gray-500">
+                                    Your health information is protected with healthcare-grade security and privacy measures.
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div class="mt-10 -mx-4 relative lg:mt-0">
+                        <div class="relative bg-white rounded-lg shadow-lg p-8">
+                            <h4 class="text-lg font-medium text-gray-900 mb-4">Quick Start Guide</h4>
+                            <ol class="space-y-3">
+                                <li class="flex items-start">
+                                    <span class="flex-shrink-0 w-6 h-6 bg-patient-100 text-patient-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">1</span>
+                                    <span class="text-gray-700">Create your account</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="flex-shrink-0 w-6 h-6 bg-patient-100 text-patient-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">2</span>
+                                    <span class="text-gray-700">Book your appointment</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="flex-shrink-0 w-6 h-6 bg-patient-100 text-patient-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">3</span>
+                                    <span class="text-gray-700">Complete assessments</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="flex-shrink-0 w-6 h-6 bg-patient-100 text-patient-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">4</span>
+                                    <span class="text-gray-700">Attend your study</span>
+                                </li>
+                            </ol>
+                            <div class="mt-6">
+                                <a href="/auth" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-patient-600 hover:bg-patient-700">
+                                    Get Started Today
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- For Healthcare Providers -->
+        <div class="bg-white py-16 lg:py-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="lg:text-center">
+                    <h2 class="text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                        For Healthcare Providers
+                    </h2>
+                    <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+                        Comprehensive tools for managing sleep study operations and patient care.
+                    </p>
+                </div>
+
+                <div class="mt-20">
+                    <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        <div class="text-center">
+                            <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-md bg-staff-500 text-white">
+                                <i data-lucide="users" class="h-6 w-6"></i>
+                            </div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">Staff Management</h3>
+                            <p class="mt-2 text-base text-gray-500">
+                                Coordinate appointments, manage patient flow, and handle administrative tasks efficiently.
+                            </p>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-md bg-doctor-500 text-white">
+                                <i data-lucide="stethoscope" class="h-6 w-6"></i>
+                            </div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">Clinical Oversight</h3>
+                            <p class="mt-2 text-base text-gray-500">
+                                Review patient assessments, manage assigned studies, and provide clinical guidance.
+                            </p>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-md bg-admin-500 text-white">
+                                <i data-lucide="settings" class="h-6 w-6"></i>
+                            </div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">System Administration</h3>
+                            <p class="mt-2 text-base text-gray-500">
+                                Full system management, organization oversight, and comprehensive reporting capabilities.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
+            <div class="xl:grid xl:grid-cols-3 xl:gap-8">
+                <div class="space-y-8 xl:col-span-1">
+                    <div class="flex items-center">
+                        <i data-lucide="activity" class="h-8 w-8 text-patient-400"></i>
+                        <span class="ml-2 text-xl font-bold text-white">Sleep Study Manager</span>
+                    </div>
+                    <p class="text-gray-300 text-base">
+                        Professional sleep study management platform designed for healthcare providers and patients.
+                    </p>
+                </div>
+                <div class="mt-12 grid grid-cols-2 gap-8 xl:mt-0 xl:col-span-2">
+                    <div class="md:grid md:grid-cols-2 md:gap-8">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Features</h3>
+                            <ul class="mt-4 space-y-4">
+                                <li><span class="text-base text-gray-300">Online Booking</span></li>
+                                <li><span class="text-base text-gray-300">Health Assessments</span></li>
+                                <li><span class="text-base text-gray-300">Secure File Upload</span></li>
+                                <li><span class="text-base text-gray-300">Role-Based Access</span></li>
+                            </ul>
+                        </div>
+                        <div class="mt-12 md:mt-0">
+                            <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">Support</h3>
+                            <ul class="mt-4 space-y-4">
+                                <li><span class="text-base text-gray-300">Documentation</span></li>
+                                <li><span class="text-base text-gray-300">Help Center</span></li>
+                                <li><span class="text-base text-gray-300">Contact Support</span></li>
+                                <li><span class="text-base text-gray-300">System Status</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 border-t border-gray-700 pt-8">
+                <p class="text-base text-gray-400 xl:text-center">
+                    &copy; 2024 Sleep Study Manager. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+// Initialize Lucide icons when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+</script>
+{% endblock %} 

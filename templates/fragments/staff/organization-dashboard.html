@@ -1,0 +1,188 @@
+<!-- Staff Organization Dashboard - Action-Oriented Widget Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    
+    <!-- Pending Actions Widget -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-medium text-gray-900">Pending Actions</h3>
+            <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">
+                {{ pending_count or 0 }}
+            </span>
+        </div>
+        
+        <div class="space-y-2" hx-get="/htmx/staff/pending-actions" hx-trigger="load, every 60s" hx-target="this" hx-swap="innerHTML">
+            {% for action in pending_actions %}
+            <div class="flex items-center justify-between p-2 {% if action.priority == 'high' %}bg-red-50 border-l-4 border-red-500{% else %}bg-gray-50{% endif %} rounded">
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ action.patient_name }}</p>
+                    <p class="text-xs text-gray-600">{{ action.action_needed }}</p>
+                    {% if action.due_date %}
+                    <p class="text-xs text-red-600">Due: {{ action.due_date }}</p>
+                    {% endif %}
+                </div>
+                <button hx-get="/htmx/staff/actions/{{ action.id }}"
+                        hx-target="#modal-container"
+                        class="{% if action.priority == 'high' %}bg-red-600 hover:bg-red-700{% else %}bg-blue-600 hover:bg-blue-700{% endif %} text-white text-xs px-3 py-1 rounded font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 {% if action.priority == 'high' %}focus:ring-red-500{% else %}focus:ring-blue-500{% endif %}">
+                    {% if action.priority == 'high' %}Act Now{% else %}Process{% endif %}
+                </button>
+            </div>
+            {% endfor %}
+            
+            {% if not pending_actions %}
+            <div class="text-center py-4">
+                <i data-lucide="check-circle" class="h-8 w-8 text-green-500 mx-auto mb-2"></i>
+                <p class="text-sm text-gray-500">All caught up!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Device Status Widget -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-3">Device Status</h3>
+        <div hx-get="/htmx/staff/device-status" hx-trigger="load, every 30s" hx-target="this" hx-swap="innerHTML">
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        <span class="text-sm text-gray-600">Available</span>
+                    </div>
+                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                        {{ devices.available or 0 }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                        <span class="text-sm text-gray-600">Assigned</span>
+                    </div>
+                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
+                        {{ devices.assigned or 0 }}
+                    </span>
+                </div>
+                <div class="pt-2 border-t border-gray-200">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600">Utilization</span>
+                        <span class="font-medium text-gray-900">{{ devices.utilization_percent or 0 }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {{ devices.utilization_percent or 0 }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Device Actions -->
+        <div class="mt-4 pt-3 border-t border-gray-200">
+            <button hx-get="/htmx/staff/device-management"
+                    hx-target="#modal-container"
+                    class="w-full text-left text-sm text-blue-600 hover:text-blue-800 font-medium">
+                <i data-lucide="settings" class="inline h-4 w-4 mr-1"></i>
+                Manage Devices
+            </button>
+        </div>
+    </div>
+    
+    <!-- Quick Actions Widget -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-3">Quick Actions</h3>
+        <div class="grid grid-cols-1 gap-2">
+            <button hx-get="/htmx/staff/assign-devices"
+                    hx-target="#modal-container"
+                    class="w-full bg-blue-600 text-white py-2 px-3 rounded text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+                <i data-lucide="smartphone" class="inline h-4 w-4 mr-1"></i>
+                Assign Devices
+            </button>
+            <button hx-get="/htmx/staff/upload-data"
+                    hx-target="#modal-container"
+                    class="w-full bg-green-600 text-white py-2 px-3 rounded text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1">
+                <i data-lucide="upload" class="inline h-4 w-4 mr-1"></i>
+                Upload Sleep Data
+            </button>
+            <button hx-get="/htmx/staff/new-booking"
+                    hx-target="#modal-container"
+                    class="w-full bg-purple-600 text-white py-2 px-3 rounded text-sm font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1">
+                <i data-lucide="plus" class="inline h-4 w-4 mr-1"></i>
+                Process New Booking
+            </button>
+        </div>
+        
+        <!-- Capacity Status -->
+        <div class="mt-4 pt-3 border-t border-gray-200">
+            <div class="text-xs text-gray-600 space-y-1">
+                <div class="flex justify-between">
+                    <span>This Week:</span>
+                    <span class="font-medium">{{ week_bookings or 0 }} studies</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Capacity:</span>
+                    <span class="font-medium {% if over_capacity %}text-red-600{% else %}text-green-600{% endif %}">
+                        {{ capacity_status or 'Normal' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Studies List Section -->
+<div class="mt-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">Organization Studies</h3>
+            <div class="flex items-center space-x-2">
+                <!-- Filter Controls -->
+                <select hx-get="/htmx/staff/studies"
+                        hx-target="#studies-content"
+                        hx-trigger="change"
+                        name="filter"
+                        class="text-sm border-gray-300 rounded-md">
+                    <option value="all">All Studies</option>
+                    <option value="booked">Pending Assignment</option>
+                    <option value="active">Active Studies</option>
+                    <option value="review">Ready for Review</option>
+                    <option value="completed">Completed</option>
+                </select>
+                
+                <button hx-get="/htmx/staff/studies"
+                        hx-target="#studies-content"
+                        hx-trigger="click"
+                        class="text-sm text-gray-500 hover:text-gray-700">
+                    <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Responsive Studies Display -->
+        <div id="studies-content">
+            <!-- Mobile: Card Layout -->
+            <div class="block md:hidden">
+                <div hx-get="/htmx/staff/studies-mobile"
+                     hx-trigger="load"
+                     hx-target="this"
+                     hx-swap="innerHTML">
+                    <div class="p-4 text-center text-gray-500">
+                        <div class="spinner inline-block"></div>
+                        <p class="mt-2">Loading studies...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Desktop: Table Layout -->
+            <div class="hidden md:block">
+                <div hx-get="/htmx/staff/studies-table"
+                     hx-trigger="load"
+                     hx-target="this"
+                     hx-swap="innerHTML">
+                    <div class="p-4 text-center text-gray-500">
+                        <div class="spinner inline-block"></div>
+                        <p class="mt-2">Loading studies...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Container -->
+<div id="modal-container"></div> 

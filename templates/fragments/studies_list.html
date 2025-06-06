@@ -1,0 +1,185 @@
+<!-- Studies List Fragment -->
+{% if studies %}
+<div class="space-y-4">
+    {% for study in studies %}
+    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <!-- Study Info -->
+            <div class="flex-1">
+                <div class="flex items-center space-x-3">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        Study #{{ study.id[:8] }}
+                    </h3>
+                    
+                    <!-- State Badge -->
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                           {% if study.state == 'booked' %}bg-blue-100 text-blue-800
+                           {% elif study.state == 'active' %}bg-green-100 text-green-800
+                           {% elif study.state == 'review' %}bg-yellow-100 text-yellow-800
+                           {% elif study.state == 'completed' %}bg-gray-100 text-gray-800
+                           {% elif study.state == 'cancelled' %}bg-red-100 text-red-800
+                           {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        <i data-lucide="
+                            {% if study.state == 'booked' %}calendar
+                            {% elif study.state == 'active' %}activity
+                            {% elif study.state == 'review' %}clock
+                            {% elif study.state == 'completed' %}check-circle
+                            {% elif study.state == 'cancelled' %}x-circle
+                            {% else %}circle{% endif %}" 
+                           class="h-3 w-3 mr-1"></i>
+                        {{ study.state|title }}
+                    </span>
+                </div>
+                
+                <div class="mt-2 text-sm text-gray-600">
+                    {% if study.patient_id %}
+                    <div class="flex items-center space-x-4">
+                        <span class="flex items-center">
+                            <i data-lucide="user" class="h-4 w-4 mr-1"></i>
+                            Patient: {{ study.patient_id[:8] }}...
+                        </span>
+                        {% if study.created_at %}
+                        <span class="flex items-center">
+                            <i data-lucide="calendar" class="h-4 w-4 mr-1"></i>
+                            Created: {{ study.created_at[:10] }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if study.notes %}
+                    <div class="mt-2 flex items-start">
+                        <i data-lucide="file-text" class="h-4 w-4 mr-1 mt-0.5 flex-shrink-0"></i>
+                        <span class="text-sm">{{ study.notes[:100] }}{% if study.notes|length > 100 %}...{% endif %}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex items-center space-x-2 ml-4">
+                <!-- View Details -->
+                <button 
+                    hx-get="/htmx/study/{{ study.id }}/details" 
+                    hx-target="#main-content"
+                    hx-swap="innerHTML"
+                    class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-healthcare-500">
+                    <i data-lucide="eye" class="h-3 w-3 mr-1"></i>
+                    View
+                </button>
+                
+                <!-- State Transition Actions -->
+                {% if study.state == 'booked' %}
+                <button 
+                    hx-post="/htmx/study/{{ study.id }}/start" 
+                    hx-target="#studies-container"
+                    hx-swap="innerHTML"
+                    hx-confirm="Start this sleep study?"
+                    class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <i data-lucide="play" class="h-3 w-3 mr-1"></i>
+                    Start
+                </button>
+                
+                {% elif study.state == 'active' %}
+                <button 
+                    hx-post="/htmx/study/{{ study.id }}/complete" 
+                    hx-target="#studies-container"
+                    hx-swap="innerHTML"
+                    hx-confirm="Mark this study as complete?"
+                    class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i data-lucide="check" class="h-3 w-3 mr-1"></i>
+                    Complete
+                </button>
+                
+                {% elif study.state == 'review' %}
+                <button 
+                    hx-get="/htmx/study/{{ study.id }}/review-form" 
+                    hx-target="#main-content"
+                    hx-swap="innerHTML"
+                    class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                    <i data-lucide="edit" class="h-3 w-3 mr-1"></i>
+                    Review
+                </button>
+                {% endif %}
+                
+                <!-- Cancel Action (available for booked and active studies) -->
+                {% if study.state in ['booked', 'active'] %}
+                <button 
+                    hx-post="/htmx/study/{{ study.id }}/cancel" 
+                    hx-target="#studies-container"
+                    hx-swap="innerHTML"
+                    hx-confirm="Are you sure you want to cancel this study?"
+                    class="inline-flex items-center px-2.5 py-1.5 border border-red-300 text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    <i data-lucide="x" class="h-3 w-3 mr-1"></i>
+                    Cancel
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Progress Indicator -->
+        {% if study.state != 'cancelled' %}
+        <div class="mt-4">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-healthcare-600 h-2 rounded-full transition-all duration-300
+                     {% if study.state == 'booked' %}w-1/4
+                     {% elif study.state == 'active' %}w-2/4
+                     {% elif study.state == 'review' %}w-3/4
+                     {% elif study.state == 'completed' %}w-full
+                     {% else %}w-0{% endif %}"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <span class="{% if study.state == 'booked' %}font-medium text-healthcare-600{% endif %}">Booked</span>
+                <span class="{% if study.state == 'active' %}font-medium text-healthcare-600{% endif %}">Active</span>
+                <span class="{% if study.state == 'review' %}font-medium text-healthcare-600{% endif %}">Review</span>
+                <span class="{% if study.state == 'completed' %}font-medium text-healthcare-600{% endif %}">Complete</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination (if needed) -->
+{% if studies|length >= 10 %}
+<div class="mt-6 flex justify-center">
+    <button 
+        hx-get="/htmx/studies?page=2" 
+        hx-target="#studies-container"
+        hx-swap="innerHTML"
+        class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-healthcare-500">
+        <i data-lucide="chevron-down" class="h-4 w-4 mr-2"></i>
+        Load More
+    </button>
+</div>
+{% endif %}
+
+{% else %}
+<!-- Empty State -->
+<div class="text-center py-12">
+    <i data-lucide="calendar-x" class="h-12 w-12 text-gray-400 mx-auto mb-4"></i>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No Studies Found</h3>
+    <p class="text-gray-600 mb-6">
+        {% if session.user.role == 'patient' %}
+            You haven't booked any sleep studies yet.
+        {% elif session.user.role == 'staff' %}
+            No studies found for your organization.
+        {% elif session.user.role == 'doctor' %}
+            No studies have been assigned to you.
+        {% else %}
+            No studies found in the system.
+        {% endif %}
+    </p>
+    
+    {% if session.user.role in ['patient', 'staff'] %}
+    <button 
+        hx-get="/htmx/create-study-form" 
+        hx-target="#main-content"
+        hx-swap="innerHTML"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-healthcare-600 hover:bg-healthcare-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-healthcare-500">
+        <i data-lucide="plus" class="h-4 w-4 mr-2"></i>
+        {% if session.user.role == 'patient' %}Book Your First Study{% else %}Create New Study{% endif %}
+    </button>
+    {% endif %}
+</div>
+{% endif %} 

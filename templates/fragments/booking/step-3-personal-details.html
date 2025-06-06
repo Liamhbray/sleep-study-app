@@ -1,0 +1,139 @@
+<!-- Progress Bar -->
+<div hx-swap-oob="innerHTML:#progress-container">
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+        <div class="bg-patient-600 h-2 rounded-full" style="width: 42%"></div>
+    </div>
+    <div class="flex justify-between text-xs text-gray-500">
+        <span>Start</span>
+        <span>Time</span>
+        <span class="font-medium text-patient-600">Details</span>
+        <span>Referral</span>
+        <span>Epworth</span>
+        <span>OSA-50</span>
+        <span>Confirm</span>
+    </div>
+</div>
+
+<!-- Step Content -->
+<div class="bg-white shadow-sm rounded-lg p-8">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            Your Details
+        </h2>
+        <p class="text-gray-600">
+            Please provide your personal information for the sleep study records.
+        </p>
+    </div>
+    
+    <form hx-post="/htmx/booking/save-step" 
+          hx-target="#booking-content"
+          hx-swap="innerHTML"
+          hx-indicator="#step-loading"
+          class="space-y-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Full Name -->
+            <div>
+                <label for="fullName" class="block text-sm font-medium text-gray-700">
+                    Full Name <span class="text-red-500">*</span>
+                </label>
+                <div class="mt-1 relative">
+                    <input type="text" 
+                           id="fullName" 
+                           name="fullName" 
+                           required
+                           value="{% if user_profile %}{{ user_profile.patient_details.full_name or '' }}{% endif %}"
+                           class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-patient-500 focus:border-patient-500 sm:text-sm"
+                           placeholder="John Doe">
+                    <i data-lucide="user" class="absolute right-3 top-2.5 h-5 w-5 text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- Date of Birth -->
+            <div>
+                <label for="dateOfBirth" class="block text-sm font-medium text-gray-700">
+                    Date of Birth <span class="text-red-500">*</span>
+                </label>
+                <div class="mt-1 relative">
+                    <input type="date" 
+                           id="dateOfBirth" 
+                           name="dateOfBirth" 
+                           required
+                           value="{% if user_profile %}{{ user_profile.patient_details.date_of_birth or '' }}{% endif %}"
+                           class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-patient-500 focus:border-patient-500 sm:text-sm">
+                    <i data-lucide="calendar" class="absolute right-3 top-2.5 h-5 w-5 text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- Phone Number -->
+            <div>
+                <label for="phoneNumber" class="block text-sm font-medium text-gray-700">
+                    Phone Number <span class="text-red-500">*</span>
+                </label>
+                <div class="mt-1 relative">
+                    <input type="tel" 
+                           id="phoneNumber" 
+                           name="phoneNumber" 
+                           required
+                           value="{% if user_profile %}{{ user_profile.patient_details.phone_number or '' }}{% endif %}"
+                           class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-patient-500 focus:border-patient-500 sm:text-sm"
+                           placeholder="(555) 123-4567">
+                    <i data-lucide="phone" class="absolute right-3 top-2.5 h-5 w-5 text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- Email Address -->
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">
+                    Email Address <span class="text-gray-500">(Optional)</span>
+                </label>
+                <div class="mt-1 relative">
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           value="{{ user.email or '' }}"
+                           class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-patient-500 focus:border-patient-500 sm:text-sm"
+                           placeholder="john@example.com">
+                    <i data-lucide="mail" class="absolute right-3 top-2.5 h-5 w-5 text-gray-400"></i>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">
+                    We'll use this to send appointment confirmations and updates.
+                </p>
+            </div>
+        </div>
+
+        <!-- Privacy Notice -->
+        <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div class="flex">
+                <i data-lucide="shield" class="h-5 w-5 text-blue-600 mt-0.5"></i>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">Privacy & Security</h3>
+                    <p class="mt-1 text-sm text-blue-700">
+                        Your personal information is encrypted and stored securely in compliance with healthcare privacy regulations.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-between">
+            <button type="button"
+                    hx-get="/htmx/booking/step/2" 
+                    hx-target="#booking-content"
+                    hx-swap="innerHTML"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i>
+                Back
+            </button>
+            
+            <button type="submit"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-patient-600 hover:bg-patient-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                Continue
+                <i data-lucide="arrow-right" class="h-4 w-4 ml-2"></i>
+            </button>
+        </div>
+        
+        <div id="step-loading" class="htmx-indicator flex justify-center">
+            <div class="spinner"></div>
+        </div>
+    </form>
+</div> 

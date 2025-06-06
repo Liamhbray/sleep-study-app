@@ -1,0 +1,15 @@
+<!-- Simple HTMX Error Response -->
+<div class="bg-red-50 border border-red-200 rounded-lg p-4">
+    <div class="flex items-start">
+        <i data-lucide="alert-circle" class="h-5 w-5 text-red-600 mt-0.5 mr-3"></i>
+        <div class="flex-1">
+            <h3 class="text-sm font-medium text-red-800">❌ Upload failed</h3>
+            <p class="mt-1 text-sm text-red-700">
+                {{ error }}
+            </p>
+            <p class="mt-2 text-xs text-red-600">
+                Please try again or choose a different file. Supported formats: PDF, JPG, PNG, GIF.
+            </p>
+        </div>
+    </div>
+</div> 

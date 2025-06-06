@@ -1,0 +1,223 @@
+<!-- Progress Bar -->
+<div hx-swap-oob="innerHTML:#progress-container">
+    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+        <div class="bg-patient-600 h-2 rounded-full" style="width: 100%"></div>
+    </div>
+    <div class="flex justify-between text-xs text-gray-500">
+        <span>Start</span>
+        <span>Time</span>
+        <span>Details</span>
+        <span>Referral</span>
+        <span>Epworth</span>
+        <span>OSA-50</span>
+        <span class="font-medium text-patient-600">Confirm</span>
+    </div>
+</div>
+
+<!-- Step Content -->
+<div class="bg-white shadow-sm rounded-lg p-8">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            Confirm Your Booking
+        </h2>
+        <p class="text-gray-600">
+            Please review your information below and confirm your sleep study booking.
+        </p>
+    </div>
+    
+    <!-- Appointment Summary -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <h3 class="text-lg font-medium text-blue-900 mb-4 flex items-center">
+            <i data-lucide="calendar" class="h-5 w-5 mr-2"></i>
+            Appointment Details
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <span class="text-sm font-medium text-blue-800">Date:</span>
+                <p class="text-blue-700">{{ booking_data.appointment.date or 'Not selected' }}</p>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-blue-800">Time:</span>
+                <p class="text-blue-700">{{ booking_data.appointment.time or 'Not selected' }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Personal Details Summary -->
+    <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+        <h3 class="text-lg font-medium text-green-900 mb-4 flex items-center">
+            <i data-lucide="user" class="h-5 w-5 mr-2"></i>
+            Personal Information
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <span class="text-sm font-medium text-green-800">Full Name:</span>
+                <p class="text-green-700">{{ booking_data.personal_details.full_name or 'Not provided' }}</p>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-green-800">Date of Birth:</span>
+                <p class="text-green-700">{{ booking_data.personal_details.date_of_birth or 'Not provided' }}</p>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-green-800">Phone Number:</span>
+                <p class="text-green-700">{{ booking_data.personal_details.phone_number or 'Not provided' }}</p>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-green-800">Email:</span>
+                <p class="text-green-700">{{ booking_data.personal_details.email or 'Not provided' }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Referral Status -->
+    <div class="bg-purple-50 border border-purple-200 rounded-lg p-6 mb-6">
+        <h3 class="text-lg font-medium text-purple-900 mb-4 flex items-center">
+            <i data-lucide="file-text" class="h-5 w-5 mr-2"></i>
+            Medical Referral
+        </h3>
+        
+        {% if booking_data.referral and booking_data.referral.filename %}
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i data-lucide="check-circle" class="h-5 w-5 text-green-600 mr-2"></i>
+                    <span class="text-purple-700">{{ booking_data.referral.filename }}</span>
+                </div>
+                <span class="text-xs text-purple-600">Uploaded</span>
+            </div>
+        {% else %}
+            <div class="flex items-center">
+                <i data-lucide="alert-circle" class="h-5 w-5 text-orange-500 mr-2"></i>
+                <span class="text-purple-700">No referral uploaded</span>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Assessment Results -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Epworth Scale -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-yellow-900 mb-3 flex items-center">
+                <i data-lucide="moon" class="h-5 w-5 mr-2"></i>
+                Epworth Scale
+            </h3>
+            
+            {% if booking_data.epworth_responses %}
+                {% set epworth_score = booking_data.epworth_responses.values() | sum %}
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-yellow-700 mb-2">{{ epworth_score }}/24</div>
+                    <p class="text-sm text-yellow-600">
+                        {% if epworth_score <= 10 %}
+                            Normal sleepiness
+                        {% elif epworth_score <= 15 %}
+                            Moderate sleepiness
+                        {% else %}
+                            High sleepiness
+                        {% endif %}
+                    </p>
+                </div>
+            {% else %}
+                <p class="text-yellow-700 text-center">Not completed</p>
+            {% endif %}
+        </div>
+        
+        <!-- OSA-50 -->
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-orange-900 mb-3 flex items-center">
+                <i data-lucide="activity" class="h-5 w-5 mr-2"></i>
+                OSA-50 Screening
+            </h3>
+            
+            {% if booking_data.osa50_responses %}
+                {% set osa50_score = booking_data.osa50_responses.values() | select('equalto', 'yes') | list | length %}
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-orange-700 mb-2">{{ osa50_score }}/5</div>
+                    <p class="text-sm text-orange-600">
+                        {% if osa50_score < 3 %}
+                            Low risk
+                        {% else %}
+                            High risk
+                        {% endif %}
+                    </p>
+                </div>
+            {% else %}
+                <p class="text-orange-700 text-center">Not completed</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Important Notes -->
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-3 flex items-center">
+            <i data-lucide="info" class="h-5 w-5 mr-2"></i>
+            Important Information
+        </h3>
+        
+        <ul class="text-sm text-gray-700 space-y-2">
+            <li class="flex items-start">
+                <i data-lucide="check" class="h-4 w-4 text-green-600 mr-2 mt-0.5"></i>
+                <span>You will receive a confirmation email within 24 hours</span>
+            </li>
+            <li class="flex items-start">
+                <i data-lucide="check" class="h-4 w-4 text-green-600 mr-2 mt-0.5"></i>
+                <span>Our staff will contact you to confirm details and provide instructions</span>
+            </li>
+            <li class="flex items-start">
+                <i data-lucide="check" class="h-4 w-4 text-green-600 mr-2 mt-0.5"></i>
+                <span>Please arrive 15 minutes before your scheduled time</span>
+            </li>
+            <li class="flex items-start">
+                <i data-lucide="check" class="h-4 w-4 text-green-600 mr-2 mt-0.5"></i>
+                <span>Follow pre-study preparation instructions when provided</span>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Consent Form -->
+    <form hx-post="/htmx/booking/submit" 
+          hx-target="#booking-content"
+          hx-swap="innerHTML"
+          hx-indicator="#final-loading"
+          class="space-y-6">
+        
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <label class="flex items-start">
+                <input type="checkbox" 
+                       name="consent"
+                       class="h-4 w-4 text-patient-600 focus:ring-patient-500 border-gray-300 rounded mt-1"
+                       required>
+                <div class="ml-3">
+                    <span class="text-sm font-medium text-red-900">
+                        I confirm that all information provided is accurate and complete
+                    </span>
+                    <p class="text-xs text-red-700 mt-1">
+                        By checking this box, you agree to our privacy policy and consent to the processing of your health information for the sleep study.
+                    </p>
+                </div>
+            </label>
+        </div>
+        
+        <div class="flex justify-between">
+            <button type="button"
+                    hx-get="/htmx/booking/step/6" 
+                    hx-target="#booking-content"
+                    hx-swap="innerHTML"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i>
+                Back
+            </button>
+            
+            <button type="submit"
+                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-patient-600 hover:bg-patient-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                <i data-lucide="check" class="h-5 w-5 mr-2"></i>
+                Confirm Booking
+            </button>
+        </div>
+        
+        <div id="final-loading" class="htmx-indicator flex justify-center">
+            <div class="spinner"></div>
+            <span class="ml-2 text-gray-600">Processing your booking...</span>
+        </div>
+    </form>
+</div> 

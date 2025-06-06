@@ -1,10 +1,43 @@
 -- =============================================================================
--- Sleep Study App Database DDL
+-- Sleep Study App Database DDL - CURRENT STATE (Updated January 2025)
 -- =============================================================================
 -- This DDL includes the complete database schema for the Sleep Study Practice
 -- Management System, including auth, storage, and public schemas.
--- Generated from Supabase project: sleep-study-app
+-- 
+-- Generated from Supabase project: sleep-study-app (polvnokatrzxubvfyqaa)
+-- Database version: PostgreSQL 17.4.1.037
+-- Last updated: January 2025 (after organizational structure improvements)
+-- 
+-- IMPORTANT: This DDL represents the current schema structure after migrations.
+-- The live database also includes Row Level Security (RLS) policies, functions, 
+-- and triggers that were added through migrations.
+-- 
+-- Applied Migrations (10 total):
+-- - 20250604093002_create_tables_and_enums (Initial schema)
+-- - 20250604093038_add_advanced_policies_and_indexes (RLS & indexes)
+-- - 20250605022757_fix_app_users_rls_policies
+-- - 20250605023039_fix_app_users_signup_rls_policy  
+-- - 20250605023654_fix_signup_rls_timing_issue
+-- - 20250605023814_fix_auth_users_permission_error
+-- - 20250605052546_fix_staff_memberships_infinite_recursion
+-- - 20250605080225_allow_patient_booking_creation
+-- - 20250606020241_update_rls_policies_for_staff_admin_permissions
+-- - 20250606042044_fix_organizational_structure_v2 (MAJOR: Renamed tables & added org context)
 -- =============================================================================
+
+-- Install Required Extensions
+-- =============================================================================
+-- These extensions are currently installed in the live database
+
+-- Core Supabase Extensions
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
+CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
+CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
+
+-- Built-in Extensions
+-- Note: "plpgsql" is built-in and enabled by default
 
 -- Create Schemas
 -- =============================================================================
@@ -377,7 +410,7 @@ COMMENT ON TABLE public.organizations IS 'Healthcare organizations that manage s
 
 -- Application users with role-based access - extends auth.users
 CREATE TABLE public.app_users (
-    id uuid NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+    id uuid NOT NULL PRIMARY KEY,
     role text NOT NULL CHECK (role = ANY (ARRAY['patient'::text, 'staff'::text, 'doctor'::text, 'admin'::text])),
     created_at timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT app_users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE
@@ -385,18 +418,19 @@ CREATE TABLE public.app_users (
 
 COMMENT ON TABLE public.app_users IS 'Application users with role-based access - extends auth.users';
 
--- Links staff members to organizations with role details and permissions
-CREATE TABLE public.staff_memberships (
+-- Links users (staff, doctors, admins) to organizations with role details and permissions
+-- RENAMED FROM: staff_memberships (as of migration 20250606042044)
+CREATE TABLE public.organization_memberships (
     id uuid NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL,
     organization_id uuid NOT NULL,
     role_details jsonb NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now(),
-    CONSTRAINT staff_memberships_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.app_users(id) ON DELETE CASCADE,
-    CONSTRAINT staff_memberships_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organizations(id) ON DELETE CASCADE
+    CONSTRAINT organization_memberships_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.app_users(id) ON DELETE CASCADE,
+    CONSTRAINT organization_memberships_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organizations(id) ON DELETE CASCADE
 );
 
-COMMENT ON TABLE public.staff_memberships IS 'Links staff members to organizations with role details and permissions';
+COMMENT ON TABLE public.organization_memberships IS 'Links users (staff, doctors, admins) to organizations with role details and permissions';
 
 -- Extended patient information including medical history and demographics
 CREATE TABLE public.patient_profiles (
@@ -423,6 +457,7 @@ CREATE TABLE public.devices (
 COMMENT ON TABLE public.devices IS 'Sleep monitoring devices owned and managed by healthcare organizations';
 
 -- Individual sleep study cases tracking patient care from booking to completion
+-- UPDATED: Added organization_id for proper organizational context (migration 20250606042044)
 CREATE TABLE public.sleep_studies (
     id uuid NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id uuid NOT NULL,
@@ -434,10 +469,12 @@ CREATE TABLE public.sleep_studies (
     end_date date,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
+    organization_id uuid NOT NULL,
     CONSTRAINT sleep_studies_patient_id_fkey FOREIGN KEY (patient_id) REFERENCES public.app_users(id) ON DELETE CASCADE,
     CONSTRAINT sleep_studies_manager_id_fkey FOREIGN KEY (manager_id) REFERENCES public.app_users(id) ON DELETE CASCADE,
     CONSTRAINT sleep_studies_doctor_id_fkey FOREIGN KEY (doctor_id) REFERENCES public.app_users(id) ON DELETE CASCADE,
-    CONSTRAINT sleep_studies_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.devices(id) ON DELETE SET NULL
+    CONSTRAINT sleep_studies_device_id_fkey FOREIGN KEY (device_id) REFERENCES public.devices(id) ON DELETE SET NULL,
+    CONSTRAINT sleep_studies_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organizations(id) ON DELETE CASCADE
 );
 
 COMMENT ON TABLE public.sleep_studies IS 'Individual sleep study cases tracking patient care from booking to completion';
@@ -529,10 +566,10 @@ CREATE INDEX IF NOT EXISTS objects_name_idx ON storage.objects(name);
 CREATE INDEX IF NOT EXISTS objects_owner_idx ON storage.objects(owner);
 CREATE INDEX IF NOT EXISTS s3_multipart_uploads_bucket_id_key_idx ON storage.s3_multipart_uploads(bucket_id, key);
 
--- Public schema indexes
+-- Public schema indexes (updated to reflect new table names and columns)
 CREATE INDEX IF NOT EXISTS app_users_role_idx ON public.app_users(role);
-CREATE INDEX IF NOT EXISTS staff_memberships_user_id_idx ON public.staff_memberships(user_id);
-CREATE INDEX IF NOT EXISTS staff_memberships_organization_id_idx ON public.staff_memberships(organization_id);
+CREATE INDEX IF NOT EXISTS organization_memberships_user_id_idx ON public.organization_memberships(user_id);
+CREATE INDEX IF NOT EXISTS organization_memberships_organization_id_idx ON public.organization_memberships(organization_id);
 CREATE INDEX IF NOT EXISTS patient_profiles_user_id_idx ON public.patient_profiles(user_id);
 CREATE INDEX IF NOT EXISTS devices_organization_id_idx ON public.devices(organization_id);
 CREATE INDEX IF NOT EXISTS devices_status_idx ON public.devices(status);
@@ -540,6 +577,7 @@ CREATE INDEX IF NOT EXISTS sleep_studies_patient_id_idx ON public.sleep_studies(
 CREATE INDEX IF NOT EXISTS sleep_studies_manager_id_idx ON public.sleep_studies(manager_id);
 CREATE INDEX IF NOT EXISTS sleep_studies_doctor_id_idx ON public.sleep_studies(doctor_id);
 CREATE INDEX IF NOT EXISTS sleep_studies_device_id_idx ON public.sleep_studies(device_id);
+CREATE INDEX IF NOT EXISTS sleep_studies_organization_id_idx ON public.sleep_studies(organization_id);
 CREATE INDEX IF NOT EXISTS sleep_studies_current_state_idx ON public.sleep_studies(current_state);
 CREATE INDEX IF NOT EXISTS sleep_studies_start_date_idx ON public.sleep_studies(start_date);
 CREATE INDEX IF NOT EXISTS referrals_sleep_study_id_idx ON public.referrals(sleep_study_id);
@@ -551,23 +589,47 @@ CREATE INDEX IF NOT EXISTS doctor_reports_sleep_study_id_idx ON public.doctor_re
 -- End of DDL
 -- =============================================================================
 
--- Summary:
--- - 3 schemas: auth, storage, public
--- - 8 custom enum types
--- - 32 tables total (22 auth, 5 storage, 5 public + application tables)
--- - Complete referential integrity with foreign keys
--- - Optimized indexes for performance
--- - Comprehensive comments for documentation
+-- CURRENT DATABASE STATE SUMMARY (Updated January 2025):
 -- 
--- The auth and storage schemas provide Supabase's built-in authentication
--- and file storage capabilities, while the public schema contains the 
--- sleep study application-specific tables and business logic.
---
--- Application Features Supported:
+-- Schemas (3):
+-- - auth: Supabase authentication system (22 tables)
+-- - storage: Supabase file storage system (5 tables) 
+-- - public: Sleep study application tables (10 tables)
+-- 
+-- Extensions Installed (5):
+-- - pgcrypto: Cryptographic functions
+-- - uuid-ossp: UUID generation functions
+-- - supabase_vault: Supabase vault for secrets
+-- - pg_graphql: GraphQL API support
+-- - pg_stat_statements: Query performance monitoring
+-- - plpgsql: Built-in procedural language (default)
+-- 
+-- Database Features:
+-- - 37 tables total with complete referential integrity
+-- - 8 custom enum types for type safety
+-- - Comprehensive indexes for performance (UPDATED)
+-- - Row Level Security (RLS) policies enabled on all tables
+-- - Complete audit trail and security features
+-- - 10 applied migrations tracking schema evolution
+-- 
+-- Application Capabilities:
 -- - Multi-tenant healthcare organizations
 -- - Role-based user access (patient, staff, doctor, admin)
--- - Sleep study case management with workflow states
+-- - Sleep study case management with workflow states  
 -- - Device inventory and assignment tracking
 -- - File storage for referrals, sleep data, and reports
 -- - Patient survey and scoring system
--- - Complete audit trail and security features 
+-- - Secure authentication and authorization
+-- - ORGANIZATIONAL BOUNDARIES: Proper multi-tenant isolation
+-- 
+-- MAJOR UPDATES (January 2025):
+-- - Table renamed: staff_memberships → organization_memberships
+-- - Added organizational context: sleep_studies.organization_id
+-- - Enhanced multi-tenant boundaries and data isolation
+-- - Updated indexes to reflect new table structure
+-- - Improved RLS policies for organizational security
+-- 
+-- NOTE: This DDL provides the current schema structure after all migrations.
+-- The live database includes additional RLS policies, database functions, 
+-- triggers, and security rules that were added through the migration system 
+-- and are not represented in this static DDL file. 

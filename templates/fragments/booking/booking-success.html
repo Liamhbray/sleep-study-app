@@ -1,0 +1,104 @@
+<div class="bg-white shadow-sm rounded-lg p-8">
+    <div class="text-center">
+        <!-- Success Icon -->
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
+            <i data-lucide="check-circle" class="h-10 w-10 text-green-600"></i>
+        </div>
+        
+        <!-- Success Message -->
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">
+            Booking Confirmed!
+        </h2>
+        
+        <p class="text-lg text-gray-600 mb-6">
+            Your sleep study has been successfully booked. We'll be in touch soon with additional details.
+        </p>
+        
+        <!-- Booking Details -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6 text-left max-w-md mx-auto">
+            <h3 class="text-lg font-medium text-green-900 mb-4 text-center">Booking Summary</h3>
+            
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-green-800">Study ID:</span>
+                    <span class="text-sm text-green-700 font-mono">{{ study_id[:8] }}...</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-green-800">Appointment Date:</span>
+                    <span class="text-sm text-green-700">{{ appointment_date }}</span>
+                </div>
+                
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-green-800">Status:</span>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <i data-lucide="calendar" class="h-3 w-3 mr-1"></i>
+                        Booked
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Next Steps -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6 text-left">
+            <h3 class="text-lg font-medium text-blue-900 mb-3 flex items-center">
+                <i data-lucide="list-checks" class="h-5 w-5 mr-2"></i>
+                What Happens Next
+            </h3>
+            
+            <ol class="text-sm text-blue-800 space-y-2">
+                <li class="flex items-start">
+                    <span class="flex-shrink-0 w-6 h-6 bg-blue-200 text-blue-800 rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">1</span>
+                    <span>You'll receive a confirmation email within 24 hours with detailed instructions</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="flex-shrink-0 w-6 h-6 bg-blue-200 text-blue-800 rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">2</span>
+                    <span>Our staff will contact you to confirm your appointment and answer any questions</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="flex-shrink-0 w-6 h-6 bg-blue-200 text-blue-800 rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">3</span>
+                    <span>You'll receive pre-study instructions and preparation guidelines</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="flex-shrink-0 w-6 h-6 bg-blue-200 text-blue-800 rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">4</span>
+                    <span>Attend your sleep study appointment at the scheduled time</span>
+                </li>
+            </ol>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+            <h3 class="text-sm font-medium text-gray-900 mb-2">Need to Make Changes?</h3>
+            <p class="text-sm text-gray-600 mb-3">
+                If you need to reschedule or have questions about your appointment:
+            </p>
+            <div class="flex flex-col sm:flex-row gap-2 justify-center">
+                <a href="tel:555-123-4567" 
+                   class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                    <i data-lucide="phone" class="h-4 w-4 mr-2"></i>
+                    Call: (555) 123-4567
+                </a>
+                <a href="mailto:appointments@sleepstudy.com" 
+                   class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                    <i data-lucide="mail" class="h-4 w-4 mr-2"></i>
+                    Email Support
+                </a>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/dashboard" 
+               class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-patient-600 hover:bg-patient-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-2"></i>
+                Return to Dashboard
+            </a>
+            
+            <button onclick="window.print()"
+                    class="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-patient-500">
+                <i data-lucide="printer" class="h-5 w-5 mr-2"></i>
+                Print Confirmation
+            </button>
+        </div>
+    </div>
+</div> 
